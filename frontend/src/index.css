@@ -1,0 +1,580 @@
+:root {
+  --bg: #14132b;
+  --surface: #1e1d3b;
+  --surface-raised: #262552;
+  --border: #35335f;
+  --gold: #f4c550;
+  --gold-dim: #7a6329;
+  --coral: #ff6b5e;
+  --green: #4ade80;
+  --text: #f5f3ee;
+  --text-dim: #a29fc9;
+
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at 50% -10%, #232152 0%, var(--bg) 55%);
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  margin: 0;
+}
+
+.app-shell {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.brand-mark {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 16px 4px rgba(244, 197, 80, 0.6);
+}
+
+main {
+  flex: 1;
+  padding: 40px 24px 80px;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 880px;
+}
+
+/* ---------- Home / quiz list ---------- */
+.eyebrow {
+  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.hero-title {
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 1.05;
+  margin-bottom: 14px;
+}
+
+.hero-sub {
+  color: var(--text-dim);
+  font-size: 16px;
+  max-width: 560px;
+  margin-bottom: 40px;
+}
+
+.quiz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.quiz-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.quiz-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--gold-dim);
+}
+
+.tag-row {
+  display: flex;
+  gap: 8px;
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.tag.difficulty-easy {
+  color: var(--green);
+  border-color: rgba(74, 222, 128, 0.35);
+}
+.tag.difficulty-medium {
+  color: var(--gold);
+  border-color: rgba(244, 197, 80, 0.35);
+}
+.tag.difficulty-hard {
+  color: var(--coral);
+  border-color: rgba(255, 107, 94, 0.35);
+}
+
+.quiz-card h3 {
+  font-size: 19px;
+}
+
+.quiz-card p {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin: 0;
+}
+
+.quiz-meta {
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.state-msg {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+
+/* ---------- Quiz play stage ---------- */
+.stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 12px;
+}
+
+.stage::before {
+  content: "";
+  position: absolute;
+  top: -60px;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(244, 197, 80, 0.16) 0%, rgba(244, 197, 80, 0) 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stage-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+.dot-progress {
+  display: flex;
+  gap: 7px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.dot.done {
+  background: var(--gold);
+}
+
+.dot.current {
+  background: var(--text);
+  box-shadow: 0 0 0 3px rgba(245, 243, 238, 0.15);
+}
+
+.question-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 36px;
+}
+
+.question-number {
+  font-family: var(--font-mono);
+  color: var(--gold);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+.question-text {
+  font-size: clamp(20px, 3vw, 26px);
+  margin-bottom: 28px;
+  line-height: 1.3;
+}
+
+.options {
+  display: grid;
+  gap: 12px;
+}
+
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text);
+  font-size: 15px;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease, transform 0.08s ease;
+}
+
+.option-btn:hover:not(:disabled) {
+  border-color: var(--gold-dim);
+  transform: translateX(2px);
+}
+
+.option-btn:disabled {
+  cursor: default;
+}
+
+.option-letter {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-dim);
+  width: 22px;
+  flex-shrink: 0;
+}
+
+.option-btn.selected {
+  border-color: var(--gold);
+  background: rgba(244, 197, 80, 0.1);
+}
+
+.option-btn.correct {
+  border-color: var(--green);
+  background: rgba(74, 222, 128, 0.12);
+}
+
+.option-btn.correct .option-letter {
+  color: var(--green);
+}
+
+.option-btn.incorrect {
+  border-color: var(--coral);
+  background: rgba(255, 107, 94, 0.12);
+}
+
+.option-btn.incorrect .option-letter {
+  color: var(--coral);
+}
+
+.stage-footer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.next-btn {
+  font-family: var(--font-display);
+  font-weight: 600;
+  background: var(--gold);
+  color: #1a1730;
+  border: none;
+  padding: 13px 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.next-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---------- Timer ring (signature element) ---------- */
+.timer-ring {
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+
+.timer-ring svg {
+  transform: rotate(-90deg);
+}
+
+.timer-ring circle {
+  fill: none;
+  stroke-width: 5;
+}
+
+.timer-ring .track {
+  stroke: var(--border);
+}
+
+.timer-ring .progress {
+  stroke: var(--gold);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
+}
+
+.timer-ring.low .progress {
+  stroke: var(--coral);
+}
+
+.timer-ring-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* ---------- Result page ---------- */
+.result-hero {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.score-ring {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 20px;
+  position: relative;
+}
+
+.score-ring svg {
+  transform: rotate(-90deg);
+}
+
+.score-ring circle {
+  fill: none;
+  stroke-width: 10;
+}
+
+.score-ring .track {
+  stroke: var(--border);
+}
+
+.score-ring .progress {
+  stroke: var(--gold);
+  stroke-linecap: round;
+}
+
+.score-ring-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-ring-label .big {
+  font-family: var(--font-mono);
+  font-size: 38px;
+  font-weight: 700;
+}
+
+.score-ring-label .small {
+  color: var(--text-dim);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+}
+
+.name-form {
+  display: flex;
+  gap: 10px;
+  max-width: 380px;
+  margin: 0 auto 32px;
+}
+
+.name-form input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.name-form input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.name-form button {
+  background: var(--gold);
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-weight: 600;
+  color: #1a1730;
+  cursor: pointer;
+}
+
+.review-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 12px;
+}
+
+.review-item .q-text {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.review-item .answer-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.review-item.correct {
+  border-left: 3px solid var(--green);
+}
+
+.review-item.incorrect {
+  border-left: 3px solid var(--coral);
+}
+
+.explanation {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--text-dim);
+  border-top: 1px dashed var(--border);
+  padding-top: 10px;
+}
+
+.actions-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 32px 0;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 12px 22px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ---------- Leaderboard ---------- */
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard-table th {
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.leaderboard-table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.rank-cell {
+  font-family: var(--font-mono);
+  color: var(--gold);
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .topbar {
+    padding: 16px 18px;
+  }
+  main {
+    padding: 24px 14px 60px;
+  }
+  .question-card {
+    padding: 24px 18px;
+  }
+}
