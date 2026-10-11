@@ -1,41 +1,111 @@
-# Quizzical — MERN Quiz Application
+# Quizzical — Production MERN Quiz Application
 
-A full-stack quiz app built with **MongoDB, Express, React (Vite), and Node.js**.
-Players pick a quiz, race a per-question countdown, and land on a leaderboard —
-answers are graded server-side so the correct answers never ship to the browser
-ahead of time.
+A production-quality full-stack online quiz platform built with **MongoDB, Express.js, React (Vite), Node.js, Mongoose, JWT, and bcryptjs**.
 
-## Features
+Features complete role-based authentication (**Admin** and **User**), automatic unique quiz-code generation, countdown timer with server-side duration verification, server-side score calculation (where answers are never exposed to the client), tiebreaker leaderboard ranking, and responsive UI.
 
-- Quiz list with category and difficulty tags
-- Timed questions with an animated countdown ring
-- Server-side grading (correct answers are never sent to the client until after submit)
-- Score summary with a full answer-by-answer review and explanations
-- Per-quiz leaderboard (top 10 scores)
-- Seed script with 3 sample quizzes (15 questions total)
+---
 
-## Project structure
+## 🚀 Key Features
 
-```
+### 🔐 Authentication & Security
+- **JWT Stateless Authentication**: Secure token generation with configurable expiration (`JWT_EXPIRES_IN`).
+- **Password Hashing**: Strong salting and hashing with `bcryptjs`. Passwords never stored in plain text and stripped from responses.
+- **Strict Role Authorization**: Public signup defaults to `user`. Creating an `admin` account requires a secret server key (`ADMIN_REGISTRATION_SECRET`).
+- **Endpoint Protection**: `requireAuth` and `requireAdmin` middlewares guarding APIs and routes.
+- **Answer Security**: Correct answers are stored exclusively in MongoDB and never sent to candidates before submission.
+- **Duplicate Submission Protection**: Backend rejects duplicate attempts for the same quiz.
+
+### 👑 Admin Experience
+- **Admin Dashboard**: Real-time counts of quizzes authored, total student participants, and average scores.
+- **Dynamic Quiz Creator**: Build quizzes with custom titles, categories, difficulty, duration (minutes), marks, and explanations.
+- **Unique Quiz Code Generation**: Automatically generates and enforces unique uppercase quiz codes (e.g. `MERN4821`).
+- **Quiz Inventory & Management**: Copy quiz codes with one click, inspect candidate attempts, and safely delete quizzes with cascading cleanups.
+- **Participant Submissions Review**: View candidate name, email, score, accuracy, time taken, and detailed answers.
+
+### 🎓 Student / User Experience
+- **Quick Code Join System**: Jump directly into a test session by entering a quiz code (e.g. `MERN4821`).
+- **Student Dashboard**: Welcome area, recent quiz scores, accuracy %, and quick join tools.
+- **Timed Quiz Interface**:
+  - Real-time countdown timer using React hooks.
+  - Interactive question palette & status indicators.
+  - Option selection, clear choice, previous/next controls.
+  - Submit confirmation dialog.
+  - Automatic submission when the timer reaches `00:00`.
+- **Server-Side Validation**: Backend calculates elapsed time and grades each response against database answers.
+- **Results Page**: Circular score percentage ring, correct vs incorrect counts, time taken, and question-by-question review with explanations.
+- **Leaderboard**:
+  - **1st priority**: Higher score.
+  - **2nd priority**: Lower completion time breaks ties.
+  - Ranked medals (🥇, 🥈, 🥉) and highlighting for the current user.
+
+---
+
+## 📁 Project Structure
+
+```text
 mern-quiz-app/
+│
 ├── backend/
-│   ├── config/db.js
-│   ├── controllers/quizController.js
-│   ├── models/Quiz.js
-│   ├── models/Score.js
-│   ├── routes/quizRoutes.js
-│   ├── seed/seed.js
-│   ├── server.js
-│   └── package.json
+│   ├── src/
+│   │   ├── config/
+│   │   │   └── db.js
+│   │   ├── controllers/
+│   │   │   ├── authController.js
+│   │   │   ├── quizController.js
+│   │   │   └── resultController.js
+│   │   ├── middleware/
+│   │   │   ├── authMiddleware.js
+│   │   │   └── roleMiddleware.js
+│   │   ├── models/
+│   │   │   ├── User.js
+│   │   │   ├── Quiz.js
+│   │   │   ├── QuizAttempt.js
+│   │   │   └── QuizResult.js
+│   │   ├── routes/
+│   │   │   ├── authRoutes.js
+│   │   │   ├── quizRoutes.js
+│   │   │   └── resultRoutes.js
+│   │   ├── seed/
+│   │   │   └── seed.js
+│   │   └── server.js
+│   ├── .env
+│   ├── .env.example
+│   ├── package.json
+│   └── server.js
+│
 └── frontend/
     ├── src/
-    │   ├── api/api.js
-    │   ├── components/TimerRing.jsx
-    │   ├── components/DotProgress.jsx
-    │   ├── pages/Home.jsx
-    │   ├── pages/QuizPage.jsx
-    │   ├── pages/ResultPage.jsx
-    │   ├── pages/Leaderboard.jsx
+    │   ├── components/
+    │   │   ├── Navbar.jsx
+    │   │   ├── ProtectedRoute.jsx
+    │   │   └── AdminRoute.jsx
+    │   ├── context/
+    │   │   └── AuthContext.jsx
+    │   ├── pages/
+    │   │   ├── auth/
+    │   │   │   ├── Login.jsx
+    │   │   │   └── Signup.jsx
+    │   │   ├── admin/
+    │   │   │   ├── AdminDashboard.jsx
+    │   │   │   ├── CreateQuiz.jsx
+    │   │   │   ├── AdminQuizzes.jsx
+    │   │   │   └── QuizResults.jsx
+    │   │   ├── user/
+    │   │   │   ├── UserDashboard.jsx
+    │   │   │   ├── JoinQuiz.jsx
+    │   │   │   ├── QuizAttempt.jsx
+    │   │   │   ├── QuizResultPage.jsx
+    │   │   │   ├── QuizLeaderboard.jsx
+    │   │   │   └── Profile.jsx
+    │   │   └── Home.jsx
+    │   ├── routes/
+    │   │   └── AppRoutes.jsx
+    │   ├── services/
+    │   │   ├── api.js
+    │   │   ├── authService.js
+    │   │   ├── quizService.js
+    │   │   └── resultService.js
     │   ├── App.jsx
     │   ├── main.jsx
     │   └── index.css
@@ -44,129 +114,83 @@ mern-quiz-app/
     └── package.json
 ```
 
-## Prerequisites
+---
 
-- Node.js 18+
-- A MongoDB instance — either local (`mongod`) or a free [MongoDB Atlas](https://www.mongodb.com/atlas) cluster
+## ⚙️ Environment Variables
 
-## 1. Backend setup
+### `backend/.env`
+```env
+PORT=5000
+MONGO_URI=mongodb://127.0.0.1:27017/quizapp
+CLIENT_ORIGIN=http://localhost:5173
+JWT_SECRET=super_secret_jwt_key_mern_quiz_2026
+JWT_EXPIRES_IN=7d
+ADMIN_REGISTRATION_SECRET=admin_secret_quiz_app_2026
+NODE_ENV=development
+```
 
+---
+
+## 🔌 REST API Endpoints
+
+### Authentication (`/api/auth`)
+| Method | Route | Access | Description |
+|---|---|---|---|
+| POST | `/api/auth/signup` | Public | Register student or admin with secret key |
+| POST | `/api/auth/login` | Public | Authenticate user & receive JWT |
+| POST | `/api/auth/logout` | Public | Invalidate client session |
+| GET | `/api/auth/me` | Authenticated | Fetch current user profile |
+
+### Quizzes (`/api/quizzes`)
+| Method | Route | Access | Description |
+|---|---|---|---|
+| GET | `/api/quizzes` | Authenticated | List all active quizzes (metadata only) |
+| POST | `/api/quizzes/join` | Authenticated | Validate quiz code & check eligibility |
+| GET | `/api/quizzes/:id` | Authenticated | Fetch quiz summary |
+| GET | `/api/quizzes/:id/attempt` | Authenticated | Start/resume attempt with server timer (no answers) |
+| POST | `/api/quizzes/:id/submit` | Authenticated | Grade answers server-side & compute score |
+| POST | `/api/quizzes` | Admin Only | Author new quiz & generate unique code |
+| GET | `/api/quizzes/admin/my` | Admin Only | List quizzes created by logged-in admin with stats |
+| DELETE | `/api/quizzes/:id` | Admin Only | Remove quiz and its submission records |
+
+### Results & Leaderboard (`/api/results` & `/api/leaderboard`)
+| Method | Route | Access | Description |
+|---|---|---|---|
+| GET | `/api/results/my` | Authenticated | Fetch logged-in user's test results |
+| GET | `/api/results/detail/:id` | Authenticated | Detailed review of an individual test attempt |
+| GET | `/api/results/:quizId` | Admin / Owner | All participant submissions for a quiz |
+| GET | `/api/leaderboard/:quizId` | Authenticated | Tiebreaker leaderboard sorted by score & time |
+
+---
+
+## 🛠️ Getting Started
+
+### 1. Prerequisites
+- **Node.js**: v18+
+- **MongoDB**: Local MongoDB community service (`mongodb://127.0.0.1:27017`) or Atlas connection URI.
+
+### 2. Backend Setup
 ```bash
 cd backend
 npm install
-cp .env.example .env
-# edit .env if your MongoDB URI or port differs
-npm run seed   # loads 3 sample quizzes into the database
-npm run dev    # starts the API on http://localhost:5000
+npm run seed     # Seeds sample admin, users, quizzes (MERN4821, JSES6101), and results
+npm run dev      # Starts Express server on port 5000
 ```
 
-Key endpoints:
-
-| Method | Route                          | Description                              |
-|--------|---------------------------------|-------------------------------------------|
-| GET    | /api/quizzes                   | List quizzes (no answers included)        |
-| GET    | /api/quizzes/:id                | Get one quiz's questions (no answers)     |
-| POST   | /api/quizzes                   | Create a quiz                              |
-| POST   | /api/quizzes/:id/submit         | Grade answers, save a score, return review |
-| GET    | /api/quizzes/:id/leaderboard     | Top 10 scores for a quiz                   |
-| DELETE | /api/quizzes/:id                | Delete a quiz                              |
-
-## 2. Frontend setup
-
+### 3. Frontend Setup
 In a second terminal:
-
 ```bash
 cd frontend
 npm install
-npm run dev    # starts the app on http://localhost:5173
+npm run dev      # Starts Vite React dev server on http://localhost:5173
 ```
 
-The Vite dev server proxies `/api` requests to `http://localhost:5000`, so just
-open http://localhost:5173 once both servers are running.
+---
 
-## 3. Build for production
+## 🧪 Default Test Credentials
 
-```bash
-cd frontend
-npm run build      # outputs static files to frontend/dist
-```
-
-Serve `frontend/dist` with any static host (or add `express.static` to
-`backend/server.js`) and point `CLIENT_ORIGIN` in `.env` at that origin.
-
-## Adding your own quizzes
-
-Either extend `backend/seed/seed.js` and re-run `npm run seed`, or POST directly
-to `/api/quizzes` with a body like:
-
-```json
-{
-  "title": "JavaScript Fundamentals",
-  "category": "Programming",
-  "difficulty": "medium",
-  "description": "Closures, hoisting, and the event loop.",
-  "timePerQuestion": 20,
-  "questions": [
-    {
-      "text": "What does `typeof null` return?",
-      "options": ["'null'", "'undefined'", "'object'", "'number'"],
-      "correctIndex": 2,
-      "explanation": "It's a long-standing JavaScript quirk."
-    }
-  ]
-}
-```
-
-## Deploying it live
-
-You need three things running somewhere other than your laptop: the database,
-the API, and the built frontend. The simplest free path deploys all of it as
-**one Render web service** (Render builds the React app and Express serves it).
-
-### 1. Database — MongoDB Atlas
-Create a free M0 cluster (see the walkthrough above) and copy its
-`mongodb+srv://...` connection string. You'll paste this into Render as an
-environment variable, not into any file you commit.
-
-### 2. Push the code to GitHub
-Render (and any host) deploys from a Git repo:
-```bash
-cd mern-quiz-app
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/<your-username>/quizzical.git
-git push -u origin main
-```
-
-### 3. Backend + frontend together — Render
-1. Go to [render.com](https://render.com) → New → **Web Service** → connect your GitHub repo.
-   (This repo already includes a `render.yaml`, so Render can auto-detect these settings via "New → Blueprint" instead, if you prefer.)
-2. Set:
-   - **Root Directory:** `backend`
-   - **Build Command:** `npm install && npm run build` (this also builds the React app — see the `build` script in `backend/package.json`)
-   - **Start Command:** `npm start`
-3. Add environment variables in Render's dashboard:
-   - `MONGO_URI` → your Atlas connection string
-   - `NODE_ENV` → `production`
-   - `CLIENT_ORIGIN` → your Render URL once you have it (e.g. `https://quizzical.onrender.com`)
-4. Deploy. Render gives you a public URL — that's your live app, frontend and API together on one origin, so CORS barely matters.
-5. Seed the live database once: in Render's dashboard, open a shell for the service and run `npm run seed`, or run it locally with `MONGO_URI` temporarily pointed at your Atlas cluster.
-
-### Alternative: split hosting (Vercel + Render)
-If you'd rather host the frontend on Vercel/Netlify and the API separately on Render:
-- Deploy `backend` to Render as its own service (root directory `backend`, build `npm install`, start `npm start`, **skip** the frontend build step). Set `NODE_ENV` to anything other than `production`... actually leave it unset so the static-serving block in `server.js` is skipped.
-- Deploy `frontend` to Vercel: root directory `frontend`, framework preset "Vite", build command `npm run build`, output directory `dist`.
-- In Vercel, add an environment-driven rewrite or just point `frontend/src/api/api.js`'s `baseURL` at your Render API URL (e.g. `https://quizzical-api.onrender.com/api`) instead of the relative `/api` proxy path used for local dev.
-- On the Render backend, set `CLIENT_ORIGIN` to your Vercel URL so CORS allows it.
-
-Either path works — one service is simplest to manage, two services scale and redeploy independently.
-
-## Notes
-
-- No authentication is included — `playerName` is just a display name typed in
-  before a score is saved. Add JWT auth in `backend` if you need real accounts.
-- CORS is restricted to `CLIENT_ORIGIN` from `.env`; update it for deployment.
-- Free-tier Render services spin down when idle and take ~30-60s to wake up on
-  the first request after a period of inactivity — normal for a demo/hobby deploy.
+| Role | Email | Password | Quiz Code |
+|---|---|---|---|
+| **Admin** | `admin@quizapp.com` | `Admin@12345` | Can create & manage any quiz |
+| **Student** | `rahul@quizapp.com` | `User@12345` | `MERN4821` |
+| **Student** | `priya@quizapp.com` | `User@12345` | `JSES6101` |
