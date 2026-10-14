@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { joinQuizByCode, fetchEnrolledQuizzes } from "../../services/quizService.js";
 import { fetchMyResults } from "../../services/resultService.js";
+import { Sparkles, Key, CheckCircle, Award, Target, Clock, ArrowRight, ShieldCheck, Trophy, Eye } from "lucide-react";
 
 export default function UserDashboard() {
   const { user, logout, becomeAdmin } = useAuth();
@@ -55,16 +56,22 @@ export default function UserDashboard() {
     totalQuizzes > 0 ? Math.max(...results.map((r) => r.percentage || 0)) : 0;
 
   return (
-    <div className="container dashboard-container">
-      {/* Welcome Banner */}
-      <div className="dash-welcome" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px", marginBottom: "20px" }}>
+    <div className="container">
+      {/* Welcome & Role Upgrade Banner */}
+      <div className="card-modern" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "20px", marginBottom: "28px", background: "linear-gradient(135deg, #ffffff 0%, #fbf9f6 100%)" }}>
         <div>
-          <div className="eyebrow">Student Dashboard</div>
-          <h1 className="hero-title">Welcome back, {user?.name}!</h1>
-          <p className="hero-sub" style={{ marginBottom: 0 }}>
+          <div className="hero-pill-badge" style={{ marginBottom: "8px" }}>
+            <Sparkles size={13} />
+            <span>Student Dashboard</span>
+          </div>
+          <h1 style={{ fontSize: "28px", color: "var(--text-heading)", marginBottom: "4px" }}>
+            Welcome back, {user?.name}! 👋
+          </h1>
+          <p style={{ fontSize: "15px", color: "var(--text-muted)" }}>
             Track your progress, join new tests using a code, and view your ranking.
           </p>
         </div>
+
         <button
           type="button"
           className="btn-secondary"
@@ -83,20 +90,25 @@ export default function UserDashboard() {
           }}
           disabled={upgrading}
         >
-          {upgrading ? "Upgrading…" : "👑 Become an Admin / Educator"}
+          <ShieldCheck size={16} color="var(--primary)" />
+          {upgrading ? "Upgrading…" : "👑 Upgrade to Educator / Admin"}
         </button>
       </div>
 
       {/* Join Quiz Code Box */}
-      <div className="dash-card join-box-card">
-        <h3>Enter Quiz Code</h3>
-        <p className="subtext">
-          Have a quiz code from your instructor or peer? Enter it below to start immediately.
+      <div className="card-modern" style={{ marginBottom: "32px", border: "1.5px solid var(--border-purple)", background: "linear-gradient(135deg, #fdfcff 0%, #f7f4ff 100%)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+          <Key size={18} color="var(--primary)" />
+          <h3 style={{ fontSize: "18px", color: "var(--text-heading)" }}>Enter Quiz Code</h3>
+        </div>
+        <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "16px" }}>
+          Have a quiz access code from your instructor or peer? Enter it below to unlock the test.
         </p>
-        <form className="join-code-form" onSubmit={handleJoinCode}>
+
+        <form className="join-code-form-clean" onSubmit={handleJoinCode} style={{ maxWidth: "480px" }}>
           <input
             type="text"
-            className="code-input"
+            className="code-input-clean"
             placeholder="e.g. MERN4821"
             value={quizCode}
             onChange={(e) => {
@@ -105,21 +117,58 @@ export default function UserDashboard() {
             }}
             maxLength={12}
           />
-          <button type="submit" className="btn-join" disabled={joining}>
-            {joining ? "Checking…" : "Join Quiz"}
+          <button type="submit" className="btn-primary" disabled={joining}>
+            {joining ? "Checking…" : "Join Quiz →"}
           </button>
         </form>
-        {joinError && <div className="alert-box alert-error mt-2">{joinError}</div>}
+        {joinError && (
+          <div className="alert-box alert-error" style={{ marginTop: "12px", maxWidth: "480px" }}>
+            <span>{joinError}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Performance Stats Cards */}
+      <div className="stats-cards-row">
+        <div className="stat-box">
+          <div className="stat-icon-wrapper" style={{ background: "#ede9fe", color: "var(--primary)" }}>
+            <Award size={24} />
+          </div>
+          <div className="stat-info-col">
+            <span className="stat-value">{totalQuizzes}</span>
+            <span className="stat-label-text">Quizzes Completed</span>
+          </div>
+        </div>
+
+        <div className="stat-box">
+          <div className="stat-icon-wrapper" style={{ background: "#dcfce7", color: "#16a34a" }}>
+            <Target size={24} />
+          </div>
+          <div className="stat-info-col">
+            <span className="stat-value">{avgScore}%</span>
+            <span className="stat-label-text">Average Accuracy</span>
+          </div>
+        </div>
+
+        <div className="stat-box">
+          <div className="stat-icon-wrapper" style={{ background: "#fef3c7", color: "#d97706" }}>
+            <Trophy size={24} />
+          </div>
+          <div className="stat-info-col">
+            <span className="stat-value">{bestScore}%</span>
+            <span className="stat-label-text">Highest Score</span>
+          </div>
+        </div>
       </div>
 
       {/* Associated Quizzes via Admin Code */}
       {enrolledQuizzes.length > 0 && (
-        <div className="dash-card mt-6">
-          <div className="dash-card-header">
+        <div className="card-modern" style={{ marginBottom: "32px" }}>
+          <div className="card-header-modern">
             <div>
               <h3>Associated Quizzes (Joined via Admin Code)</h3>
-              <p className="subtext" style={{ marginBottom: 0 }}>
-                Quizzes you have unlocked with valid instructor codes.
+              <p style={{ fontSize: "14px", color: "var(--text-muted)", marginTop: "2px" }}>
+                Tests you have successfully unlocked with valid educator codes.
               </p>
             </div>
           </div>
@@ -140,8 +189,12 @@ export default function UserDashboard() {
                   <tr key={eq._id}>
                     <td><strong>{eq.title}</strong></td>
                     <td>
-                      <span>{eq.admin?.name || "Admin"}</span>
-                      {eq.admin?.email && <span style={{ display: "block", fontSize: "12px", color: "var(--text-muted)" }}>{eq.admin.email}</span>}
+                      <span style={{ fontWeight: 600 }}>{eq.admin?.name || "Admin"}</span>
+                      {eq.admin?.email && (
+                        <span style={{ display: "block", fontSize: "12px", color: "var(--text-muted)" }}>
+                          {eq.admin.email}
+                        </span>
+                      )}
                     </td>
                     <td><span className="code-pill font-mono">{eq.quizCode}</span></td>
                     <td>{eq.duration} min</td>
@@ -159,25 +212,9 @@ export default function UserDashboard() {
         </div>
       )}
 
-      {/* Performance Stats */}
-      <div className="stats-row">
-        <div className="stat-card">
-          <div className="stat-number">{totalQuizzes}</div>
-          <div className="stat-label">Quizzes Completed</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-number">{avgScore}%</div>
-          <div className="stat-label">Average Accuracy</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-number">{bestScore}%</div>
-          <div className="stat-label">Highest Score</div>
-        </div>
-      </div>
-
       {/* Recent Results */}
-      <div className="dash-card mt-6">
-        <div className="dash-card-header">
+      <div className="card-modern">
+        <div className="card-header-modern">
           <h3>Your Recent Quiz Results</h3>
           <Link to="/" className="btn-link">
             Browse All Quizzes →
@@ -187,13 +224,15 @@ export default function UserDashboard() {
         {loading ? (
           <div className="state-msg-container">
             <div className="spinner" />
-            <p className="state-msg">Loading your test history…</p>
+            <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>Loading your test history…</p>
           </div>
         ) : results.length === 0 ? (
-          <div className="empty-state">
-            <p className="state-msg">You haven't completed any quizzes yet.</p>
+          <div style={{ textAlign: "center", padding: "40px 20px" }}>
+            <p style={{ color: "var(--text-muted)", marginBottom: "16px", fontSize: "15px" }}>
+              You haven't completed any quizzes yet.
+            </p>
             <Link to="/" className="btn-primary">
-              Take Your First Quiz
+              Take Your First Quiz →
             </Link>
           </div>
         ) : (
@@ -213,11 +252,11 @@ export default function UserDashboard() {
               <tbody>
                 {results.map((r) => (
                   <tr key={r._id}>
-                    <td className="font-bold">{r.quiz?.title || "Quiz"}</td>
+                    <td style={{ fontWeight: 700 }}>{r.quiz?.title || "Quiz"}</td>
                     <td>
-                      <span className="code-pill">{r.quiz?.quizCode || "—"}</span>
+                      <span className="code-pill font-mono">{r.quiz?.quizCode || "—"}</span>
                     </td>
-                    <td>
+                    <td style={{ fontWeight: 600 }}>
                       {r.score} / {r.totalMarks}
                     </td>
                     <td>
@@ -234,20 +273,18 @@ export default function UserDashboard() {
                       </span>
                     </td>
                     <td>{Math.floor(r.timeTaken / 60)}m {r.timeTaken % 60}s</td>
-                    <td className="text-muted">
+                    <td style={{ color: "var(--text-muted)" }}>
                       {new Date(r.submittedAt).toLocaleDateString()}
                     </td>
                     <td>
-                      <div className="btn-group-sm">
-                        <Link to={`/result/${r._id}`} className="btn-table-action">
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <Link to={`/result/${r._id}`} className="btn-secondary-sm">
+                          <Eye size={13} />
                           Review
                         </Link>
                         {r.quiz?._id && (
-                          <Link
-                            to={`/leaderboard/${r.quiz._id}`}
-                            className="btn-table-action"
-                          >
-                            Leaderboard
+                          <Link to={`/leaderboard/${r.quiz._id}`} className="btn-secondary-sm" title="View Leaderboard">
+                            <Trophy size={13} />
                           </Link>
                         )}
                       </div>

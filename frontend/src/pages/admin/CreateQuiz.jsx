@@ -1,5 +1,19 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import {
+  Sparkles,
+  Plus,
+  Trash2,
+  CheckCircle2,
+  Copy,
+  Check,
+  Clock,
+  BookOpen,
+  ArrowRight,
+  HelpCircle,
+  LayoutDashboard,
+  ExternalLink
+} from "lucide-react";
 import { createQuiz } from "../../services/quizService.js";
 
 const DEFAULT_QUESTION = () => ({
@@ -165,43 +179,112 @@ export default function CreateQuiz() {
 
   if (createdQuiz) {
     return (
-      <div className="container success-container">
-        <div className="auth-card text-center">
-          <div className="success-icon">🎉</div>
-          <div className="eyebrow">Creation Successful</div>
-          <h1 className="hero-title">Quiz is Live!</h1>
-          <p className="hero-sub">
-            Your quiz <strong>{createdQuiz.title}</strong> has been saved. Students can now join
-            using the code below.
+      <div className="container" style={{ padding: "60px 24px", maxWidth: "640px" }}>
+        <div className="card-modern text-center" style={{ padding: "48px 36px" }}>
+          <div
+            style={{
+              width: "64px",
+              height: "64px",
+              borderRadius: "50%",
+              background: "var(--green-light)",
+              color: "#15803d",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 20px"
+            }}
+          >
+            <CheckCircle2 size={36} />
+          </div>
+
+          <div className="badge-modern" style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginBottom: "12px" }}>
+            <Sparkles size={14} /> Publication Complete
+          </div>
+
+          <h1 style={{ fontSize: "28px", fontWeight: 800, color: "var(--text-heading)", marginBottom: "8px" }}>
+            Quiz is Published & Live!
+          </h1>
+          <p style={{ color: "var(--text-muted)", fontSize: "15px", marginBottom: "28px" }}>
+            Candidates can join right now by entering your unique access code.
           </p>
 
-          <div className="created-code-box">
-            <span className="code-label">OFFICIAL QUIZ CODE</span>
-            <div className="code-display">{createdQuiz.quizCode}</div>
-            <button type="button" className="btn-copy-lg" onClick={copyCode}>
-              {copied ? "✓ Copied to Clipboard!" : "📋 Copy Code"}
+          {/* Access Code Box */}
+          <div
+            style={{
+              background: "var(--surface-raised)",
+              border: "2px dashed var(--border-purple)",
+              borderRadius: "var(--radius-lg)",
+              padding: "24px",
+              marginBottom: "28px"
+            }}
+          >
+            <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              Official Student Access Code
+            </span>
+            <div
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "36px",
+                fontWeight: 900,
+                color: "var(--primary)",
+                letterSpacing: "0.08em",
+                margin: "8px 0 16px"
+              }}
+            >
+              {createdQuiz.quizCode}
+            </div>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={copyCode}
+              style={{ display: "inline-flex", alignItems: "center", gap: "8px", margin: "0 auto" }}
+            >
+              {copied ? <Check size={18} /> : <Copy size={18} />}
+              {copied ? "Copied to Clipboard!" : "Copy Code"}
             </button>
           </div>
 
-          <div className="quiz-details-summary">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "12px",
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderRadius: "var(--radius-md)",
+              padding: "16px",
+              marginBottom: "28px",
+              textAlign: "center"
+            }}
+          >
             <div>
-              <span>Duration:</span> <strong>{createdQuiz.duration} Minutes</strong>
+              <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>Duration</div>
+              <strong style={{ color: "var(--text-heading)" }}>{createdQuiz.duration} min</strong>
             </div>
             <div>
-              <span>Questions:</span>{" "}
-              <strong>{createdQuiz.questions?.length || questions.length}</strong>
+              <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>Questions</div>
+              <strong style={{ color: "var(--text-heading)" }}>{createdQuiz.questions?.length || questions.length}</strong>
             </div>
             <div>
-              <span>Difficulty:</span> <strong className="capitalize">{createdQuiz.difficulty}</strong>
+              <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>Difficulty</div>
+              <strong style={{ color: "var(--text-heading)", textTransform: "capitalize" }}>{createdQuiz.difficulty}</strong>
             </div>
           </div>
 
-          <div className="created-actions-row">
-            <Link to="/admin/dashboard" className="btn-primary">
-              Return to Admin Dashboard
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
+            <Link
+              to="/admin/dashboard"
+              className="btn-primary"
+              style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
+            >
+              <LayoutDashboard size={18} /> Return to Dashboard
             </Link>
-            <Link to={`/quiz/${createdQuiz._id}`} className="btn-secondary">
-              Preview Quiz
+            <Link
+              to={`/quiz/${createdQuiz._id}`}
+              className="btn-secondary"
+              style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
+            >
+              Preview Candidate View <ExternalLink size={16} />
             </Link>
           </div>
         </div>
@@ -210,23 +293,31 @@ export default function CreateQuiz() {
   }
 
   return (
-    <div className="container create-quiz-container">
-      <div className="create-quiz-header">
-        <div className="eyebrow">Authoring Studio</div>
-        <h1 className="hero-title">Create a New Quiz</h1>
-        <p className="hero-sub">
-          Build questions, define answers, and the system will generate a unique access code.
+    <div className="container" style={{ padding: "40px 24px 80px", maxWidth: "960px" }}>
+      {/* Header */}
+      <div style={{ marginBottom: "32px" }}>
+        <div className="badge-modern" style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginBottom: "12px" }}>
+          <Sparkles size={14} /> Authoring Studio
+        </div>
+        <h1 style={{ fontSize: "32px", fontWeight: 800, color: "var(--text-heading)", marginBottom: "6px" }}>
+          Create a New Quiz
+        </h1>
+        <p style={{ color: "var(--text-muted)", fontSize: "15px" }}>
+          Build questions, select correct answers, and publish an automated exam with real-time timer verification.
         </p>
       </div>
 
-      {error && <div className="alert-box alert-error">{error}</div>}
+      {error && <div className="alert-box alert-error" style={{ marginBottom: "24px" }}>{error}</div>}
 
-      <form onSubmit={handleSubmit} className="quiz-form">
-        {/* Basic Details Section */}
-        <div className="form-card">
-          <h2 className="form-card-title">1. General Information</h2>
-          <div className="form-grid">
-            <div className="form-group col-span-2">
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+        {/* Section 1: General Info */}
+        <div className="card-modern" style={{ padding: "32px" }}>
+          <h2 style={{ fontSize: "19px", fontWeight: 800, color: "var(--text-heading)", marginBottom: "20px" }}>
+            1. General Information
+          </h2>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+            <div className="form-group">
               <label>Quiz Title *</label>
               <input
                 type="text"
@@ -237,133 +328,246 @@ export default function CreateQuiz() {
               />
             </div>
 
-            <div className="form-group col-span-2">
-              <label>Description</label>
+            <div className="form-group">
+              <label>Description (Optional)</label>
               <textarea
-                placeholder="What topics will this quiz assess?"
+                placeholder="Briefly describe what concepts this quiz tests..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
               />
             </div>
 
-            <div className="form-group">
-              <label>Duration (Minutes) *</label>
-              <input
-                type="number"
-                min="1"
-                max="180"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                required
-              />
-              <span className="form-hint">Server automatically manages the timer countdown.</span>
-            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                gap: "16px"
+              }}
+            >
+              <div className="form-group">
+                <label>Duration (Minutes) *</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="180"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  required
+                />
+              </div>
 
-            <div className="form-group">
-              <label>Category</label>
-              <select value={category} onChange={(e) => setCategory(e.target.value)}>
-                <option value="Web Development">Web Development</option>
-                <option value="Programming">Programming</option>
-                <option value="Computer Science">Computer Science</option>
-                <option value="Database">Database</option>
-                <option value="General">General</option>
-              </select>
-            </div>
+              <div className="form-group">
+                <label>Category</label>
+                <select value={category} onChange={(e) => setCategory(e.target.value)}>
+                  <option value="Web Development">Web Development</option>
+                  <option value="Programming">Programming</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Database">Database</option>
+                  <option value="General">General</option>
+                </select>
+              </div>
 
-            <div className="form-group">
-              <label>Difficulty</label>
-              <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-              </select>
+              <div className="form-group">
+                <label>Difficulty</label>
+                <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Questions Section */}
-        <div className="form-card mt-6">
-          <div className="form-card-header">
+        {/* Section 2: Questions Builder */}
+        <div className="card-modern" style={{ padding: "32px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "12px",
+              marginBottom: "20px"
+            }}
+          >
             <div>
-              <h2 className="form-card-title">2. Questions & Answers</h2>
-              <p className="subtext">
-                Select the radio button corresponding to the correct answer. Correct answers are
-                securely stored in MongoDB and never leaked to candidates.
+              <h2 style={{ fontSize: "19px", fontWeight: 800, color: "var(--text-heading)", marginBottom: "4px" }}>
+                2. Questions & Answer Key
+              </h2>
+              <p style={{ fontSize: "13px", color: "var(--text-muted)" }}>
+                Click the radio button beside the option that represents the correct answer.
               </p>
             </div>
-            <button type="button" className="btn-secondary" onClick={addQuestion}>
-              + Add Question
+
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={addQuestion}
+              style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "13px" }}
+            >
+              <Plus size={16} /> Add Question
             </button>
           </div>
 
-          <div className="questions-builder-list">
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             {questions.map((q, qIndex) => (
-              <div key={qIndex} className="builder-question-card">
-                <div className="builder-q-header">
-                  <span className="builder-q-number">Question #{qIndex + 1}</span>
-                  <div className="builder-q-actions">
-                    <label className="marks-label">
+              <div
+                key={qIndex}
+                style={{
+                  background: "var(--surface-raised)",
+                  border: "1.5px solid var(--border)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "24px"
+                }}
+              >
+                {/* Question Top Row */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginBottom: "16px"
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "13px",
+                      fontWeight: 800,
+                      color: "var(--primary)",
+                      background: "var(--primary-light)",
+                      padding: "4px 10px",
+                      borderRadius: "var(--radius-sm)"
+                    }}
+                  >
+                    Question #{qIndex + 1}
+                  </span>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: 600, color: "var(--text-muted)" }}>
                       Marks:
                       <input
                         type="number"
                         min="1"
-                        className="marks-input"
+                        style={{
+                          width: "56px",
+                          padding: "4px 8px",
+                          fontSize: "13px",
+                          borderRadius: "var(--radius-sm)",
+                          border: "1px solid var(--border)",
+                          textAlign: "center"
+                        }}
                         value={q.marks}
                         onChange={(e) => handleMarksChange(qIndex, e.target.value)}
                       />
                     </label>
+
                     {questions.length > 1 && (
                       <button
                         type="button"
-                        className="btn-remove-q"
                         onClick={() => removeQuestion(qIndex)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "var(--coral)",
+                          cursor: "pointer",
+                          padding: "4px",
+                          display: "flex",
+                          alignItems: "center"
+                        }}
                         title="Delete question"
                       >
-                        ✕ Remove
+                        <Trash2 size={16} />
                       </button>
                     )}
                   </div>
                 </div>
 
-                <div className="form-group">
+                {/* Question Input */}
+                <div className="form-group" style={{ marginBottom: "16px" }}>
                   <input
                     type="text"
-                    className="input-q-text"
-                    placeholder="Enter question text (e.g. Which hook manages side effects?)"
+                    placeholder="Enter question prompt (e.g. Which React hook manages lifecycle effects?)"
                     value={q.question}
                     onChange={(e) => handleQuestionTextChange(qIndex, e.target.value)}
                     required
+                    style={{ fontWeight: 600 }}
                   />
                 </div>
 
-                <div className="builder-options-list">
-                  <span className="options-legend">
+                {/* Options list */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "16px" }}>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
                     Options (Select radio for correct answer):
                   </span>
+
                   {q.options.map((opt, optIndex) => (
-                    <div key={optIndex} className="builder-option-row">
-                      <label className="radio-label">
+                    <div
+                      key={optIndex}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                        background: q.correctAnswer === optIndex ? "#f5f3ff" : "var(--surface)",
+                        border: `1.5px solid ${q.correctAnswer === optIndex ? "var(--primary)" : "var(--border)"}`,
+                        borderRadius: "var(--radius-md)",
+                        padding: "8px 12px"
+                      }}
+                    >
+                      <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", margin: 0 }}>
                         <input
                           type="radio"
                           name={`correct-answer-${qIndex}`}
                           checked={q.correctAnswer === optIndex}
                           onChange={() => handleCorrectAnswerChange(qIndex, optIndex)}
+                          style={{ accentColor: "var(--primary)", width: "16px", height: "16px", cursor: "pointer" }}
                         />
-                        <span className="opt-badge">{OPTION_LETTERS[optIndex]}</span>
+                        <span
+                          style={{
+                            width: "24px",
+                            height: "24px",
+                            borderRadius: "50%",
+                            background: q.correctAnswer === optIndex ? "var(--primary)" : "var(--surface-raised)",
+                            color: q.correctAnswer === optIndex ? "#ffffff" : "var(--text-muted)",
+                            fontSize: "12px",
+                            fontWeight: 700,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                          }}
+                        >
+                          {OPTION_LETTERS[optIndex]}
+                        </span>
                       </label>
+
                       <input
                         type="text"
                         placeholder={`Option ${OPTION_LETTERS[optIndex]} text`}
                         value={opt}
                         onChange={(e) => handleOptionChange(qIndex, optIndex, e.target.value)}
                         required
+                        style={{
+                          border: "none",
+                          background: "transparent",
+                          padding: "6px",
+                          width: "100%",
+                          outline: "none",
+                          fontSize: "14px"
+                        }}
                       />
+
                       {q.options.length > 2 && (
                         <button
                           type="button"
-                          className="btn-opt-del"
                           onClick={() => removeOptionFromQuestion(qIndex, optIndex)}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "var(--text-dim)",
+                            cursor: "pointer",
+                            padding: "4px"
+                          }}
                           title="Remove option"
                         >
                           ✕
@@ -375,41 +579,65 @@ export default function CreateQuiz() {
                   {q.options.length < 6 && (
                     <button
                       type="button"
-                      className="btn-link mt-2"
                       onClick={() => addOptionToQuestion(qIndex)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "var(--primary)",
+                        cursor: "pointer",
+                        fontSize: "13px",
+                        fontWeight: 700,
+                        textAlign: "left",
+                        padding: "4px 0",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px"
+                      }}
                     >
-                      + Add another option
+                      <Plus size={14} /> Add another option
                     </button>
                   )}
                 </div>
 
-                <div className="form-group mt-3">
+                {/* Explanation */}
+                <div className="form-group">
                   <input
                     type="text"
-                    className="input-explanation"
-                    placeholder="Optional explanation shown on the post-test results page"
+                    placeholder="Optional explanation shown to candidate after submission"
                     value={q.explanation}
                     onChange={(e) => handleExplanationChange(qIndex, e.target.value)}
+                    style={{ fontSize: "13px", color: "var(--text-main)" }}
                   />
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-4 text-center">
-            <button type="button" className="btn-secondary" onClick={addQuestion}>
-              + Add Another Question
+          <div style={{ marginTop: "24px", textAlign: "center" }}>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={addQuestion}
+              style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
+            >
+              <Plus size={18} /> Add Another Question
             </button>
           </div>
         </div>
 
         {/* Submit Actions */}
-        <div className="form-submit-row">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "14px" }}>
           <Link to="/admin/dashboard" className="btn-secondary">
             Cancel
           </Link>
-          <button type="submit" className="btn-primary" disabled={submitting}>
-            {submitting ? "Creating Quiz & Code…" : "Publish Quiz & Generate Code →"}
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={submitting}
+            style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
+          >
+            {submitting ? "Publishing Quiz & Generating Code…" : "Publish Quiz & Generate Code"}
+            {!submitting && <ArrowRight size={18} />}
           </button>
         </div>
       </form>

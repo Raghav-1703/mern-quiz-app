@@ -1,5 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import {
+  Sparkles,
+  Trophy,
+  ArrowLeft,
+  Users,
+  Clock,
+  Calendar,
+  ExternalLink,
+  CheckCircle2,
+  XCircle,
+  FileText
+} from "lucide-react";
 import { fetchQuizResults } from "../../services/resultService.js";
 import { fetchQuizById } from "../../services/quizService.js";
 
@@ -30,21 +42,46 @@ export default function QuizResults() {
   };
 
   return (
-    <div className="container admin-container">
-      <div className="admin-banner-header">
+    <div className="container" style={{ padding: "40px 24px 80px", maxWidth: "1080px" }}>
+      {/* Banner */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "20px",
+          marginBottom: "32px"
+        }}
+      >
         <div>
-          <div className="eyebrow">Participant Records</div>
-          <h1 className="hero-title">{quiz?.title || "Quiz Submissions"}</h1>
-          <p className="hero-sub">
-            Review individual scores, completion speeds, and candidate responses.
+          <div className="badge-modern" style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginBottom: "12px" }}>
+            <Sparkles size={14} /> Candidate Submissions
+          </div>
+          <h1 style={{ fontSize: "32px", fontWeight: 800, color: "var(--text-heading)", marginBottom: "6px" }}>
+            {quiz?.title || "Quiz Submissions"}
+          </h1>
+          <p style={{ color: "var(--text-muted)", fontSize: "15px" }}>
+            Inspect candidate scores, time taken, and answer breakdowns for this assessment.
           </p>
         </div>
-        <div className="admin-header-actions">
-          <Link to={`/leaderboard/${quizId}`} className="btn-primary">
-            🏆 View Leaderboard
+
+        <div style={{ display: "flex", gap: "12px" }}>
+          <Link
+            to={`/leaderboard/${quizId}`}
+            className="btn-primary"
+            style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
+          >
+            <Trophy size={18} />
+            View Leaderboard
           </Link>
-          <Link to="/admin/quizzes" className="btn-secondary">
-            ← Back to Quizzes
+          <Link
+            to="/admin/quizzes"
+            className="btn-secondary"
+            style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
+          >
+            <ArrowLeft size={18} />
+            Back to Quizzes
           </Link>
         </div>
       </div>
@@ -56,45 +93,65 @@ export default function QuizResults() {
         </div>
       )}
 
-      {error && <div className="alert-box alert-error">{error}</div>}
+      {error && <div className="alert-box alert-error" style={{ marginBottom: "20px" }}>{error}</div>}
 
       {!loading && results.length === 0 && (
-        <div className="empty-state">
-          <p className="state-msg">No candidate has submitted this quiz yet.</p>
-          <p className="subtext">
-            Share the quiz code <strong>{quiz?.quizCode}</strong> with students to start receiving attempts.
+        <div className="card-modern" style={{ padding: "64px 32px", textAlign: "center" }}>
+          <Users size={48} color="var(--primary)" style={{ opacity: 0.35, marginBottom: "16px" }} />
+          <h3 style={{ fontSize: "18px", color: "var(--text-heading)", marginBottom: "8px" }}>
+            No Candidates Have Submitted Yet
+          </h3>
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
+            Distribute the quiz access code <span className="code-pill">{quiz?.quizCode}</span> to your students to start collecting assessments.
           </p>
         </div>
       )}
 
       {!loading && results.length > 0 && (
-        <div className="dash-card mt-6">
-          <div className="dash-card-header">
-            <h3>Total Submissions: {results.length}</h3>
+        <div className="card-modern">
+          <div
+            style={{
+              padding: "20px 24px",
+              borderBottom: "1px solid var(--border)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between"
+            }}
+          >
+            <h3 style={{ fontSize: "18px", fontWeight: 800, color: "var(--text-heading)" }}>
+              Total Submissions: {results.length}
+            </h3>
+            <span style={{ fontSize: "13px", color: "var(--text-muted)", fontWeight: 600 }}>
+              Code: <span className="code-pill">{quiz?.quizCode}</span>
+            </span>
           </div>
+
           <div className="table-responsive">
             <table className="modern-table">
               <thead>
                 <tr>
-                  <th>Participant</th>
+                  <th>Candidate</th>
                   <th>Email</th>
                   <th>Score</th>
                   <th>Accuracy</th>
                   <th>Correct / Total</th>
-                  <th>Time Taken</th>
+                  <th>Duration</th>
                   <th>Submitted At</th>
-                  <th>Actions</th>
+                  <th style={{ textAlign: "right" }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {results.map((r) => (
                   <tr key={r._id}>
                     <td>
-                      <strong>{r.user?.name || "Student"}</strong>
+                      <strong style={{ color: "var(--text-heading)", fontSize: "14px" }}>
+                        {r.user?.name || "Candidate"}
+                      </strong>
                     </td>
-                    <td className="text-muted">{r.user?.email || "—"}</td>
+                    <td style={{ color: "var(--text-muted)", fontSize: "13px" }}>{r.user?.email || "—"}</td>
                     <td>
-                      {r.score} / {r.totalMarks}
+                      <span style={{ fontWeight: 700, color: "var(--text-heading)" }}>{r.score}</span>
+                      <span style={{ color: "var(--text-muted)", fontSize: "12px" }}> / {r.totalMarks}</span>
                     </td>
                     <td>
                       <span
@@ -109,16 +166,22 @@ export default function QuizResults() {
                         {r.percentage}%
                       </span>
                     </td>
-                    <td>
+                    <td style={{ color: "var(--text-main)", fontSize: "13px" }}>
                       {r.correctAnswers} / {r.totalQuestions}
                     </td>
-                    <td>⏱️ {formatTime(r.timeTaken)}</td>
-                    <td className="text-muted">
+                    <td style={{ color: "var(--text-muted)", fontSize: "13px" }}>
+                      ⏱️ {formatTime(r.timeTaken)}
+                    </td>
+                    <td style={{ color: "var(--text-muted)", fontSize: "13px" }}>
                       {new Date(r.submittedAt).toLocaleString()}
                     </td>
-                    <td>
-                      <Link to={`/result/${r._id}`} className="btn-table-action">
-                        View Review
+                    <td style={{ textAlign: "right" }}>
+                      <Link
+                        to={`/result/${r._id}`}
+                        className="btn-secondary"
+                        style={{ padding: "6px 12px", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                      >
+                        <FileText size={12} /> Review
                       </Link>
                     </td>
                   </tr>

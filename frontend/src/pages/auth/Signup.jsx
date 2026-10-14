@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
+import { User, Mail, Lock, Eye, EyeOff, Sparkles, GraduationCap, ShieldCheck, CheckCircle2, ArrowRight } from "lucide-react";
 
 export default function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState("user"); // "user" | "admin"
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -52,96 +54,163 @@ export default function Signup() {
   };
 
   return (
-    <div className="container auth-container">
-      <div className="auth-card">
-        <div className="eyebrow">Get Started</div>
-        <h1 className="hero-title auth-title">Create your account</h1>
-        <p className="hero-sub auth-sub">
-          Join tests, challenge fellow learners, and view instant score analytics.
-        </p>
-
-        {error && <div className="alert-box alert-error">{error}</div>}
-
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="signup-name">Full Name</label>
-            <input
-              id="signup-name"
-              type="text"
-              placeholder="e.g. John Doe"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              autoFocus
-            />
+    <div className="container">
+      <div className="auth-split-wrapper">
+        {/* Left Side: Educational Motivation & Role Details */}
+        <div className="auth-hero-showcase">
+          <div className="auth-hero-badge">
+            <Sparkles size={14} />
+            <span>Join Quizzical Today</span>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="signup-email">Email Address</label>
-            <input
-              id="signup-email"
-              type="email"
-              placeholder="you@domain.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+          <h1 className="auth-hero-title">
+            Level Up Your Knowledge With <span className="gradient-text">Personalized Quizzes</span>
+          </h1>
+
+          <p className="auth-hero-desc">
+            Whether you are a student testing your skills under timed exam conditions or an educator creating unique class quiz codes, Quizzical gives you the tools you need.
+          </p>
+
+          <div className="card-modern" style={{ background: "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)", border: "1px solid #ddd6fe", marginBottom: "32px" }}>
+            <h3 style={{ fontSize: "16px", color: "var(--text-heading)", marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}>
+              <CheckCircle2 size={18} color="var(--primary)" />
+              What you get with your account:
+            </h3>
+            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "10px", fontSize: "14px", color: "var(--text-body)" }}>
+              <li style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span>🎯</span> <strong>Access by Code:</strong> Instantly join private educator quizzes.
+              </li>
+              <li style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span>⏱️</span> <strong>Real-Time Timers:</strong> Practice with anti-cheat server countdowns.
+              </li>
+              <li style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span>📊</span> <strong>Detailed Reviews:</strong> Understand every wrong and right answer.
+              </li>
+              <li style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span>👑</span> <strong>Multi-Admin Capabilities:</strong> Create tests and track class leaderboards.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Right Side: Clean Rounded Registration Card */}
+        <div className="auth-card-clean">
+          <div className="auth-card-header">
+            <h2>Create Your Account</h2>
+            <p>Start learning or authoring quizzes in under a minute.</p>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="signup-password">Password</label>
-            <input
-              id="signup-password"
-              type="password"
-              placeholder="At least 6 characters"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Account Type</label>
-            <div className="role-selector-grid">
-              <label className={`role-card-opt ${role === "user" ? "role-card-selected" : ""}`}>
-                <input
-                  type="radio"
-                  name="signup-role"
-                  value="user"
-                  checked={role === "user"}
-                  onChange={() => setRole("user")}
-                />
-                <div>
-                  <strong>🎓 Student Account</strong>
-                  <p className="role-desc">Join quizzes using admin codes and view score analytics.</p>
-                </div>
-              </label>
-
-              <label className={`role-card-opt ${role === "admin" ? "role-card-selected" : ""}`}>
-                <input
-                  type="radio"
-                  name="signup-role"
-                  value="admin"
-                  checked={role === "admin"}
-                  onChange={() => setRole("admin")}
-                />
-                <div>
-                  <strong>👑 Admin / Educator Account</strong>
-                  <p className="role-desc">Create quizzes, generate unique codes, and monitor participants.</p>
-                </div>
-              </label>
+          {error && (
+            <div className="alert-box alert-error">
+              <span>{error}</span>
             </div>
-          </div>
+          )}
 
-          <button type="submit" className="btn-primary" disabled={submitting}>
-            {submitting ? "Creating Account…" : "Create Account"}
-          </button>
-        </form>
+          <form className="auth-form" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="signup-name">Full Name</label>
+              <div className="input-with-icon">
+                <User className="input-icon-left" size={18} />
+                <input
+                  id="signup-name"
+                  type="text"
+                  placeholder="e.g. Alex Morgan"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  autoFocus
+                />
+              </div>
+            </div>
 
-        <p className="auth-footer-text">
-          Already have an account? <Link to="/login">Sign in here</Link>
-        </p>
+            <div className="form-group">
+              <label htmlFor="signup-email">Email Address</label>
+              <div className="input-with-icon">
+                <Mail className="input-icon-left" size={18} />
+                <input
+                  id="signup-email"
+                  type="email"
+                  placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="signup-password">Password</label>
+              <div className="input-with-icon">
+                <Lock className="input-icon-left" size={18} />
+                <input
+                  id="signup-password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="At least 6 characters"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  className="input-icon-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Account Type Selection */}
+            <div className="form-group">
+              <label>Select Your Role</label>
+              <div className="role-selector-grid">
+                <label className={`role-card-opt ${role === "user" ? "role-card-selected" : ""}`}>
+                  <input
+                    type="radio"
+                    name="signup-role"
+                    value="user"
+                    checked={role === "user"}
+                    onChange={() => setRole("user")}
+                  />
+                  <div>
+                    <strong style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px" }}>
+                      <GraduationCap size={16} color="var(--primary)" />
+                      Student
+                    </strong>
+                    <p className="role-desc">Join tests via code, compete & track scores.</p>
+                  </div>
+                </label>
+
+                <label className={`role-card-opt ${role === "admin" ? "role-card-selected" : ""}`}>
+                  <input
+                    type="radio"
+                    name="signup-role"
+                    value="admin"
+                    checked={role === "admin"}
+                    onChange={() => setRole("admin")}
+                  />
+                  <div>
+                    <strong style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px" }}>
+                      <ShieldCheck size={16} color="#b45309" />
+                      Admin
+                    </strong>
+                    <p className="role-desc">Create quizzes, generate codes & view analytics.</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <button type="submit" className="btn-primary" style={{ width: "100%", padding: "14px" }} disabled={submitting}>
+              {submitting ? "Creating Account…" : "Create Account →"}
+            </button>
+          </form>
+
+          <p className="auth-footer-prompt">
+            Already have an account? <Link to="/login">Sign in here</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
