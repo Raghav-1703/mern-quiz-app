@@ -67,6 +67,25 @@ const quizSchema = new mongoose.Schema(
       enum: ["easy", "medium", "hard"],
       default: "medium",
     },
+    visibility: {
+      type: String,
+      enum: ["public", "private"],
+      default: "public",
+      index: true,
+    },
+    isPublished: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
+    scheduledStartTime: {
+      type: Date,
+      default: null,
+    },
+    accessDeadline: {
+      type: Date,
+      default: null,
+    },
     questions: {
       type: [questionSchema],
       required: true,
@@ -79,12 +98,31 @@ const quizSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
+
+// Virtual to determine the real-time calculated availability status
+quizSchema.virtual("status").get(function () {
+  if (!this.isPublished) return "draft";
+  const now = new Date();
+  if (this.scheduledStartTime && new Date(this.scheduledStartTime) > now) {
+    return "scheduled";
+  }
+  if (this.accessDeadline && new Date(this.accessDeadline) < now) {
+    return "expired";
+  }
+  return "active";
+});
+
+// Indexes for high-performance scheduling and visibility queries
+quizSchema.index({ visibility: 1, isPublished: 1, scheduledStartTime: 1, accessDeadline: 1 });
 
 const Quiz = mongoose.model("Quiz", quizSchema);
 

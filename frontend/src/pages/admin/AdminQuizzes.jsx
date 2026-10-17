@@ -6,10 +6,7 @@ import {
   Copy,
   Check,
   Trophy,
-  Users,
   Trash2,
-  Clock,
-  ExternalLink,
   AlertTriangle
 } from "lucide-react";
 import { fetchAdminQuizzes, deleteQuiz } from "../../services/quizService.js";
@@ -25,7 +22,7 @@ export default function AdminQuizzes() {
   const loadQuizzes = () => {
     setLoading(true);
     fetchAdminQuizzes()
-      .then((data) => setQuizzes(data))
+      .then((data) => setQuizzes(data || []))
       .catch((err) => {
         console.error("Failed to load admin quizzes:", err);
         setError("Unable to load quizzes.");
@@ -59,7 +56,7 @@ export default function AdminQuizzes() {
   };
 
   return (
-    <div className="container" style={{ padding: "40px 24px 80px", maxWidth: "1080px" }}>
+    <div className="container" style={{ marginTop: "24px" }}>
       {/* Banner */}
       <div
         style={{
@@ -67,65 +64,62 @@ export default function AdminQuizzes() {
           alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
-          gap: "20px",
-          marginBottom: "32px"
+          gap: "16px",
+          marginBottom: "24px",
         }}
       >
         <div>
-          <div className="badge-modern" style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginBottom: "12px" }}>
-            <Sparkles size={14} /> Curriculum Inventory
+          <div className="hero-pill-badge" style={{ marginBottom: "8px" }}>
+            <Sparkles size={13} />
+            <span>Curriculum Management</span>
           </div>
-          <h1 style={{ fontSize: "32px", fontWeight: 800, color: "var(--text-heading)", marginBottom: "6px" }}>
+          <h1 style={{ fontSize: "28px", color: "var(--text)", marginBottom: "4px" }}>
             Manage Created Quizzes
           </h1>
-          <p style={{ color: "var(--text-muted)", fontSize: "15px" }}>
-            Inspect access codes, view candidate submissions, or manage test availability.
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
+            Review access codes, inspect submissions, and manage quiz availability.
           </p>
         </div>
 
-        <Link
-          to="/admin/create-quiz"
-          className="btn-primary"
-          style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
-        >
-          <Plus size={18} />
+        <Link to="/admin/create-quiz" className="btn-primary">
+          <Plus size={16} />
           Create New Quiz
         </Link>
       </div>
 
-      {error && <div className="alert-box alert-error" style={{ marginBottom: "20px" }}>{error}</div>}
+      {error && <div className="alert-box alert-error" style={{ marginBottom: "16px" }}>{error}</div>}
 
       {loading && (
         <div className="state-msg-container">
           <div className="spinner" />
-          <p className="state-msg">Loading quiz records…</p>
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>Loading quiz records…</p>
         </div>
       )}
 
       {!loading && quizzes.length === 0 && (
-        <div className="card-modern" style={{ padding: "64px 32px", textAlign: "center" }}>
-          <p style={{ color: "var(--text-muted)", fontSize: "15px", marginBottom: "24px" }}>
+        <div className="card-modern" style={{ padding: "48px 24px", textAlign: "center" }}>
+          <p style={{ color: "var(--text-muted)", fontSize: "14px", marginBottom: "16px" }}>
             No quizzes authored yet.
           </p>
-          <Link to="/admin/create-quiz" className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-            <Plus size={18} /> Create Your First Quiz
+          <Link to="/admin/create-quiz" className="btn-primary">
+            <Plus size={15} /> Create Your First Quiz
           </Link>
         </div>
       )}
 
       {!loading && quizzes.length > 0 && (
-        <div className="card-modern">
+        <div className="card-modern" style={{ padding: 0, overflow: "hidden" }}>
           <div className="table-responsive">
             <table className="modern-table">
               <thead>
                 <tr>
                   <th>Title & Category</th>
+                  <th>Visibility</th>
+                  <th>Status</th>
                   <th>Access Code</th>
                   <th>Duration</th>
-                  <th>Questions</th>
                   <th>Submissions</th>
                   <th>Avg. Score</th>
-                  <th>Created</th>
                   <th style={{ textAlign: "right" }}>Actions</th>
                 </tr>
               </thead>
@@ -133,11 +127,21 @@ export default function AdminQuizzes() {
                 {quizzes.map((q) => (
                   <tr key={q._id}>
                     <td>
-                      <strong style={{ color: "var(--text-heading)", fontSize: "15px", display: "block" }}>
+                      <strong style={{ color: "var(--text)", display: "block" }}>
                         {q.title}
                       </strong>
-                      <span style={{ fontSize: "12px", color: "var(--text-muted)", display: "inline-block", marginTop: "2px" }}>
-                        {q.category} • <span style={{ textTransform: "capitalize" }}>{q.difficulty}</span>
+                      <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+                        {q.category} &bull; <span style={{ textTransform: "capitalize" }}>{q.difficulty}</span>
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`visibility-pill visibility-${q.visibility}`}>
+                        {q.visibility === "private" ? "Private" : "Public"}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`status-pill status-${q.status}`}>
+                        {q.status}
                       </span>
                     </td>
                     <td>
@@ -150,84 +154,63 @@ export default function AdminQuizzes() {
                             background: "none",
                             border: "none",
                             cursor: "pointer",
-                            padding: "4px",
+                            padding: "2px",
                             display: "flex",
                             alignItems: "center",
-                            color: copiedCode === q.quizCode ? "var(--green)" : "var(--text-dim)"
+                            color: copiedCode === q.quizCode ? "var(--easy)" : "var(--text-muted)",
                           }}
                           title="Copy quiz code"
                         >
-                          {copiedCode === q.quizCode ? <Check size={16} /> : <Copy size={16} />}
+                          {copiedCode === q.quizCode ? <Check size={14} /> : <Copy size={14} />}
                         </button>
                       </div>
                     </td>
                     <td style={{ color: "var(--text-muted)", fontSize: "13px" }}>{q.duration} min</td>
-                    <td style={{ fontWeight: 600, color: "var(--text-heading)" }}>{q.questionCount}</td>
                     <td>
-                      <span
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "4px",
-                          padding: "3px 10px",
-                          borderRadius: "var(--radius-full)",
-                          fontSize: "12px",
-                          fontWeight: 700,
-                          background: "var(--primary-light)",
-                          color: "var(--primary)"
-                        }}
-                      >
-                        <Users size={12} /> {q.participantCount}
-                      </span>
+                      <span style={{ fontWeight: 600 }}>{q.participantCount}</span>
                     </td>
                     <td>
                       <span
-                        className={`status-pill ${
-                          q.avgScore >= 75
-                            ? "status-success"
-                            : q.avgScore >= 50
-                            ? "status-warning"
-                            : "status-danger"
-                        }`}
+                        className="badge-tag"
+                        style={{
+                          background:
+                            q.avgScore >= 75
+                              ? "rgba(63, 125, 88, 0.12)"
+                              : q.avgScore >= 50
+                              ? "rgba(183, 121, 31, 0.12)"
+                              : "rgba(178, 58, 58, 0.12)",
+                          color:
+                            q.avgScore >= 75
+                              ? "var(--easy)"
+                              : q.avgScore >= 50
+                              ? "var(--medium)"
+                              : "var(--hard)",
+                        }}
                       >
                         {q.avgScore}%
                       </span>
                     </td>
-                    <td style={{ color: "var(--text-muted)", fontSize: "13px" }}>
-                      {new Date(q.createdAt).toLocaleDateString()}
-                    </td>
                     <td style={{ textAlign: "right" }}>
-                      <div style={{ display: "inline-flex", gap: "8px" }}>
+                      <div style={{ display: "inline-flex", gap: "6px" }}>
                         <Link
                           to={`/admin/results/${q._id}`}
-                          className="btn-secondary"
-                          style={{ padding: "6px 12px", fontSize: "12px" }}
-                          title="View all participant submissions"
+                          className="btn-secondary-sm"
+                          title="View submissions"
                         >
                           Submissions
                         </Link>
                         <Link
                           to={`/leaderboard/${q._id}`}
-                          className="btn-secondary"
-                          style={{ padding: "6px 12px", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                          className="btn-secondary-sm"
                           title="Leaderboard"
                         >
-                          <Trophy size={12} /> Rank
+                          <Trophy size={12} />
                         </Link>
                         <button
                           type="button"
                           onClick={() => setQuizToDelete(q)}
-                          style={{
-                            padding: "6px 10px",
-                            fontSize: "12px",
-                            background: "var(--coral-light)",
-                            color: "var(--coral)",
-                            border: "1px solid #fecdd3",
-                            borderRadius: "var(--radius-md)",
-                            cursor: "pointer",
-                            display: "inline-flex",
-                            alignItems: "center"
-                          }}
+                          className="btn-secondary-sm"
+                          style={{ color: "var(--hard)" }}
                           title="Delete quiz"
                         >
                           <Trash2 size={13} />
@@ -248,33 +231,33 @@ export default function AdminQuizzes() {
           <div className="modal-card">
             <div
               style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "50%",
-                background: "var(--coral-light)",
-                color: "var(--coral)",
+                width: "44px",
+                height: "44px",
+                borderRadius: "var(--radius-btn)",
+                background: "rgba(178, 58, 58, 0.12)",
+                color: "var(--hard)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                marginBottom: "16px"
+                marginBottom: "14px",
               }}
             >
-              <AlertTriangle size={24} />
+              <AlertTriangle size={22} />
             </div>
 
-            <h3 style={{ fontSize: "20px", fontWeight: 800, color: "var(--text-heading)", marginBottom: "8px" }}>
+            <h3 style={{ fontSize: "19px", color: "var(--text)", marginBottom: "8px" }}>
               Delete "{quizToDelete.title}"?
             </h3>
-            <p style={{ color: "var(--text-muted)", fontSize: "14px", lineHeight: 1.5, marginBottom: "16px" }}>
-              This will permanently delete this quiz, all associated questions,{" "}
+            <p style={{ color: "var(--text-muted)", fontSize: "14px", lineHeight: 1.5, marginBottom: "14px" }}>
+              This will permanently delete this quiz, associated questions,{" "}
               <strong>{quizToDelete.participantCount}</strong> candidate submission records, and its official
               leaderboard history.
             </p>
-            <p style={{ color: "var(--coral)", fontSize: "13px", fontWeight: 700, marginBottom: "24px" }}>
-              ⚠️ This action cannot be reversed.
+            <p style={{ color: "var(--hard)", fontSize: "13px", fontWeight: 600, marginBottom: "20px" }}>
+              This action cannot be undone.
             </p>
 
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "12px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "10px" }}>
               <button
                 type="button"
                 className="btn-secondary"
@@ -286,7 +269,7 @@ export default function AdminQuizzes() {
               <button
                 type="button"
                 className="btn-primary"
-                style={{ background: "var(--coral)", border: "none" }}
+                style={{ background: "var(--hard)", borderColor: "var(--hard)" }}
                 onClick={confirmDelete}
                 disabled={Boolean(deletingId)}
               >

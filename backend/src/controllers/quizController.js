@@ -4,12 +4,26 @@ import Quiz from "../models/Quiz.js";
 import QuizAttempt from "../models/QuizAttempt.js";
 import QuizResult from "../models/QuizResult.js";
 
+// Helper to calculate real-time availability status
+export const computeQuizStatus = (quiz) => {
+  if (!quiz.isPublished) return "draft";
+  const now = new Date();
+  if (quiz.scheduledStartTime && new Date(quiz.scheduledStartTime) > now) {
+    return "scheduled";
+  }
+  if (quiz.accessDeadline && new Date(quiz.accessDeadline) < now) {
+    return "expired";
+  }
+  return "active";
+};
+
 // Helper to generate a unique quiz code, e.g., "MERN4821" or "QUIZ8372"
 const generateUniqueQuizCode = async (prefix = "QUIZ") => {
-  const cleanPrefix = (prefix || "QUIZ")
-    .replace(/[^a-zA-Z]/g, "")
-    .slice(0, 4)
-    .toUpperCase() || "QUIZ";
+  const cleanPrefix =
+    (prefix || "QUIZ")
+      .replace(/[^a-zA-Z]/g, "")
+      .slice(0, 4)
+      .toUpperCase() || "QUIZ";
 
   let uniqueCode = "";
   let exists = true;
@@ -29,10 +43,21 @@ const generateUniqueQuizCode = async (prefix = "QUIZ") => {
   return uniqueCode;
 };
 
-// POST /api/quizzes (Admin only)
+// POST /api/quizzes (Admin only - Create Quiz)
 export const createQuiz = async (req, res) => {
   try {
-    const { title, description, duration, category, difficulty, questions } = req.body;
+    const {
+      title,
+      description,
+      duration,
+      category,
+      difficulty,
+      visibility = "public",
+      isPublished = true,
+      scheduledStartTime = null,
+      accessDeadline = null,
+      questions,
+    } = req.body;
 
     if (!title || !title.trim()) {
       return res.status(400).json({ message: "Quiz title is required." });
@@ -45,6 +70,31 @@ export const createQuiz = async (req, res) => {
 
     if (!Array.isArray(questions) || questions.length === 0) {
       return res.status(400).json({ message: "At least one question is required." });
+    }
+
+    // Validate dates if provided
+    let parsedStart = null;
+    let parsedDeadline = null;
+
+    if (scheduledStartTime) {
+      parsedStart = new Date(scheduledStartTime);
+      if (isNaN(parsedStart.getTime())) {
+        return res.status(400).json({ message: "Invalid scheduled start time format." });
+      }
+    }
+
+    if (accessDeadline) {
+      parsedDeadline = new Date(accessDeadline);
+      if (isNaN(parsedDeadline.getTime())) {
+        return res.status(400).json({ message: "Invalid access deadline format." });
+      }
+      if (parsedDeadline <= new Date()) {
+        return res.status(400).json({ message: "Access deadline must be a future date and time." });
+      }
+    }
+
+    if (parsedStart && parsedDeadline && parsedStart >= parsedDeadline) {
+      return res.status(400).json({ message: "Scheduled start time must precede the access deadline." });
     }
 
     // Validate each question
@@ -79,6 +129,10 @@ export const createQuiz = async (req, res) => {
       duration: durationNum,
       category: category ? category.trim() : "General",
       difficulty: difficulty || "medium",
+      visibility: visibility === "private" ? "private" : "public",
+      isPublished: Boolean(isPublished),
+      scheduledStartTime: parsedStart,
+      accessDeadline: parsedDeadline,
       questions: questions.map((q) => ({
         question: q.question.trim(),
         options: q.options.map((opt) => opt.trim()),
@@ -91,7 +145,10 @@ export const createQuiz = async (req, res) => {
 
     res.status(201).json({
       message: "Quiz created successfully.",
-      quiz,
+      quiz: {
+        ...quiz.toObject(),
+        status: computeQuizStatus(quiz),
+      },
     });
   } catch (err) {
     console.error("Create quiz error:", err);
@@ -99,36 +156,127 @@ export const createQuiz = async (req, res) => {
   }
 };
 
-// GET /api/quizzes (List quizzes with safe public metadata)
+// PUT /api/quizzes/:id (Admin only - Update Quiz)
+export const updateQuiz = async (req, res) => {
+  try {
+    const quiz = await Quiz.findById(req.params.id);
+    if (!quiz) {
+      return res.status(404).json({ message: "Quiz not found." });
+    }
+
+    if (!quiz.createdBy.equals(req.user._id) && req.user.role !== "admin") {
+      return res.status(403).json({ message: "You are not authorized to edit this quiz." });
+    }
+
+    const {
+      title,
+      description,
+      duration,
+      category,
+      difficulty,
+      visibility,
+      isPublished,
+      scheduledStartTime,
+      accessDeadline,
+      questions,
+    } = req.body;
+
+    if (title !== undefined) quiz.title = title.trim();
+    if (description !== undefined) quiz.description = description.trim();
+    if (duration !== undefined) {
+      const d = Number(duration);
+      if (d < 1) return res.status(400).json({ message: "Duration must be at least 1 minute." });
+      quiz.duration = d;
+    }
+    if (category !== undefined) quiz.category = category.trim();
+    if (difficulty !== undefined) quiz.difficulty = difficulty;
+    if (visibility !== undefined) quiz.visibility = visibility === "private" ? "private" : "public";
+    if (isPublished !== undefined) quiz.isPublished = Boolean(isPublished);
+
+    if (scheduledStartTime !== undefined) {
+      quiz.scheduledStartTime = scheduledStartTime ? new Date(scheduledStartTime) : null;
+    }
+    if (accessDeadline !== undefined) {
+      quiz.accessDeadline = accessDeadline ? new Date(accessDeadline) : null;
+    }
+
+    if (quiz.scheduledStartTime && quiz.accessDeadline && quiz.scheduledStartTime >= quiz.accessDeadline) {
+      return res.status(400).json({ message: "Scheduled start time must precede access deadline." });
+    }
+
+    if (Array.isArray(questions) && questions.length > 0) {
+      quiz.questions = questions.map((q) => ({
+        question: q.question.trim(),
+        options: q.options.map((opt) => opt.trim()),
+        correctAnswer: Number(q.correctAnswer),
+        marks: Number(q.marks) || 1,
+        explanation: q.explanation ? q.explanation.trim() : "",
+      }));
+    }
+
+    await quiz.save();
+
+    res.json({
+      message: "Quiz updated successfully.",
+      quiz: {
+        ...quiz.toObject(),
+        status: computeQuizStatus(quiz),
+      },
+    });
+  } catch (err) {
+    console.error("Update quiz error:", err);
+    res.status(500).json({ message: err.message || "Failed to update quiz." });
+  }
+};
+
+// GET /api/quizzes (Public Listing - Only Active, Published, Public Quizzes)
 export const getQuizzes = async (req, res) => {
   try {
     const { category, difficulty, search } = req.query;
-    const filter = {};
+    const now = new Date();
 
-    if (category) filter.category = category;
-    if (difficulty) filter.difficulty = difficulty;
-    if (search) {
+    // Query strictly for public, published, active quizzes
+    const filter = {
+      visibility: "public",
+      isPublished: true,
+      $and: [
+        {
+          $or: [{ scheduledStartTime: null }, { scheduledStartTime: { $lte: now } }],
+        },
+        {
+          $or: [{ accessDeadline: null }, { accessDeadline: { $gte: now } }],
+        },
+      ],
+    };
+
+    if (category && category !== "All") filter.category = category;
+    if (difficulty && difficulty !== "All") filter.difficulty = difficulty;
+    if (search && search.trim()) {
       filter.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { quizCode: { $regex: search, $options: "i" } },
+        { title: { $regex: search.trim(), $options: "i" } },
+        { description: { $regex: search.trim(), $options: "i" } },
       ];
     }
 
     const quizzes = await Quiz.find(filter)
-      .populate("createdBy", "name email")
+      .populate("createdBy", "name")
       .sort({ createdAt: -1 });
 
+    // Sanitize: Never expose correct answers or explanations; do not expose access codes publicly
     const sanitized = quizzes.map((q) => ({
       _id: q._id,
       title: q.title,
       description: q.description,
-      quizCode: q.quizCode,
       duration: q.duration,
       category: q.category,
       difficulty: q.difficulty,
+      visibility: q.visibility,
+      scheduledStartTime: q.scheduledStartTime,
+      accessDeadline: q.accessDeadline,
+      status: computeQuizStatus(q),
       questionCount: q.questions.length,
       totalMarks: q.questions.reduce((sum, item) => sum + (item.marks || 1), 0),
-      createdBy: q.createdBy,
+      createdBy: q.createdBy ? { name: q.createdBy.name } : null,
       createdAt: q.createdAt,
     }));
 
@@ -139,7 +287,7 @@ export const getQuizzes = async (req, res) => {
   }
 };
 
-// GET /api/quizzes/:id (Quiz details)
+// GET /api/quizzes/:id (Quiz details with access verification)
 export const getQuizById = async (req, res) => {
   try {
     const quiz = await Quiz.findById(req.params.id).populate("createdBy", "name email");
@@ -150,12 +298,30 @@ export const getQuizById = async (req, res) => {
     const isCreator = req.user && quiz.createdBy && quiz.createdBy._id.equals(req.user._id);
     const isAdmin = req.user && req.user.role === "admin";
 
-    // If admin/creator is managing it, include questions with correctAnswer
+    // Admin/Creator gets full data
     if (isCreator || isAdmin) {
-      return res.json(quiz);
+      return res.json({
+        ...quiz.toObject(),
+        status: computeQuizStatus(quiz),
+      });
     }
 
-    // Otherwise safe questions only
+    // Check if user has permission to view this quiz
+    const user = await User.findById(req.user._id);
+    const isEnrolled = user?.enrolledCodes?.some(
+      (e) => String(e.quiz) === String(quiz._id) || e.code === quiz.quizCode
+    );
+
+    if (quiz.visibility === "private" && !isEnrolled) {
+      return res.status(403).json({
+        message: "This is a private quiz. Please enter a valid access code to join.",
+        requiresCode: true,
+      });
+    }
+
+    const status = computeQuizStatus(quiz);
+
+    // Sanitize questions
     const safeQuestions = quiz.questions.map((q) => ({
       _id: q._id,
       question: q.question,
@@ -167,12 +333,15 @@ export const getQuizById = async (req, res) => {
       _id: quiz._id,
       title: quiz.title,
       description: quiz.description,
-      quizCode: quiz.quizCode,
       duration: quiz.duration,
       category: quiz.category,
       difficulty: quiz.difficulty,
+      visibility: quiz.visibility,
+      status,
+      scheduledStartTime: quiz.scheduledStartTime,
+      accessDeadline: quiz.accessDeadline,
       questions: safeQuestions,
-      createdBy: quiz.createdBy,
+      createdBy: quiz.createdBy ? { name: quiz.createdBy.name } : null,
       createdAt: quiz.createdAt,
     });
   } catch (err) {
@@ -181,7 +350,7 @@ export const getQuizById = async (req, res) => {
   }
 };
 
-// POST /api/quizzes/join (Validate quiz code, associate student, and verify status)
+// POST /api/quizzes/join (Validate quiz code, check scheduling/expiry, and enroll student)
 export const joinByCode = async (req, res) => {
   try {
     const { quizCode } = req.body;
@@ -193,10 +362,37 @@ export const joinByCode = async (req, res) => {
     const quiz = await Quiz.findOne({ quizCode: code }).populate("createdBy", "name email");
 
     if (!quiz) {
-      return res.status(404).json({ message: `Invalid code. No quiz or class found with access code "${code}".` });
+      return res.status(404).json({ message: `Invalid code. No quiz found with access code "${code}".` });
     }
 
-    // Associate student with the admin and quiz represented by this code
+    // Check publication
+    if (!quiz.isPublished) {
+      return res.status(400).json({ message: "This quiz is currently unavailable (draft/unpublished)." });
+    }
+
+    const now = new Date();
+
+    // Check scheduled start time
+    if (quiz.scheduledStartTime && new Date(quiz.scheduledStartTime) > now) {
+      const formattedStart = new Date(quiz.scheduledStartTime).toLocaleString();
+      return res.status(400).json({
+        message: `This quiz is scheduled to open on ${formattedStart} and cannot be joined yet.`,
+        scheduledStartTime: quiz.scheduledStartTime,
+        isScheduled: true,
+      });
+    }
+
+    // Check overall access deadline
+    if (quiz.accessDeadline && new Date(quiz.accessDeadline) < now) {
+      const formattedDeadline = new Date(quiz.accessDeadline).toLocaleString();
+      return res.status(400).json({
+        message: `This quiz expired on ${formattedDeadline} and is no longer accepting new attempts.`,
+        accessDeadline: quiz.accessDeadline,
+        isExpired: true,
+      });
+    }
+
+    // Associate student with the quiz and educator
     const user = await User.findById(req.user._id);
     if (user) {
       if (!user.enrolledCodes) user.enrolledCodes = [];
@@ -229,7 +425,7 @@ export const joinByCode = async (req, res) => {
         questionCount: quiz.questions.length,
         alreadySubmitted: true,
         resultId: existingResult._id,
-        admin: quiz.createdBy ? { _id: quiz.createdBy._id, name: quiz.createdBy.name, email: quiz.createdBy.email } : null,
+        status: computeQuizStatus(quiz),
         message: "You have already completed this quiz.",
       });
     }
@@ -241,10 +437,13 @@ export const joinByCode = async (req, res) => {
       duration: quiz.duration,
       category: quiz.category,
       difficulty: quiz.difficulty,
+      visibility: quiz.visibility,
+      status: computeQuizStatus(quiz),
+      scheduledStartTime: quiz.scheduledStartTime,
+      accessDeadline: quiz.accessDeadline,
       questionCount: quiz.questions.length,
-      admin: quiz.createdBy ? { _id: quiz.createdBy._id, name: quiz.createdBy.name, email: quiz.createdBy.email } : null,
       alreadySubmitted: false,
-      message: `Access granted! Associated with ${quiz.createdBy?.name || "Admin"}'s quiz session.`,
+      message: `Access granted! Successfully joined "${quiz.title}".`,
     });
   } catch (err) {
     console.error("Join by code error:", err);
@@ -252,7 +451,7 @@ export const joinByCode = async (req, res) => {
   }
 };
 
-// GET /api/quizzes/:id/attempt (Start or resume quiz attempt safely)
+// GET /api/quizzes/:id/attempt (Start or resume quiz attempt safely with server timer)
 export const getQuizForAttempt = async (req, res) => {
   try {
     const quiz = await Quiz.findById(req.params.id);
@@ -260,21 +459,37 @@ export const getQuizForAttempt = async (req, res) => {
       return res.status(404).json({ message: "Quiz not found." });
     }
 
-    // Verify student is associated with the admin's quiz via code OR is creator/admin
-    const isCreatorOrAdmin = req.user.role === "admin" || (quiz.createdBy && quiz.createdBy.equals(req.user._id));
+    const isCreatorOrAdmin =
+      req.user.role === "admin" || (quiz.createdBy && quiz.createdBy.equals(req.user._id));
     const user = await User.findById(req.user._id);
     const isEnrolled = user?.enrolledCodes?.some(
       (e) => String(e.quiz) === String(quiz._id) || e.code === quiz.quizCode
     );
 
-    if (!isCreatorOrAdmin && !isEnrolled) {
+    // If private, require enrollment or admin
+    if (quiz.visibility === "private" && !isCreatorOrAdmin && !isEnrolled) {
       return res.status(403).json({
-        message: "Access restricted. You can only access this quiz after entering its valid admin code.",
+        message: "Access restricted. You can only access this private quiz using its valid access code.",
         requiresCode: true,
       });
     }
 
-    // Duplicate submission check
+    // Check publication
+    if (!quiz.isPublished && !isCreatorOrAdmin) {
+      return res.status(403).json({ message: "This quiz is currently unpublished." });
+    }
+
+    const now = new Date();
+
+    // Check scheduled start time
+    if (quiz.scheduledStartTime && new Date(quiz.scheduledStartTime) > now && !isCreatorOrAdmin) {
+      return res.status(400).json({
+        message: `This quiz has not opened yet. It will become available on ${new Date(quiz.scheduledStartTime).toLocaleString()}.`,
+        scheduledStartTime: quiz.scheduledStartTime,
+      });
+    }
+
+    // Check duplicate submission
     const existingResult = await QuizResult.findOne({
       user: req.user._id,
       quiz: quiz._id,
@@ -288,13 +503,24 @@ export const getQuizForAttempt = async (req, res) => {
       });
     }
 
-    // Track or retrieve server-controlled attempt
+    // Check for existing ongoing attempt
     let attempt = await QuizAttempt.findOne({
       user: req.user._id,
       quiz: quiz._id,
       isCompleted: false,
     });
 
+    // Policy enforcement:
+    // If NO attempt has started yet and accessDeadline has passed: REJECT new start!
+    if (!attempt && quiz.accessDeadline && new Date(quiz.accessDeadline) < now && !isCreatorOrAdmin) {
+      return res.status(400).json({
+        message: `The deadline to begin this quiz passed on ${new Date(quiz.accessDeadline).toLocaleString()}. No new attempts can be started.`,
+        isExpired: true,
+        accessDeadline: quiz.accessDeadline,
+      });
+    }
+
+    // If no existing attempt, initialize a new server-controlled attempt
     if (!attempt) {
       attempt = await QuizAttempt.create({
         user: req.user._id,
@@ -303,8 +529,12 @@ export const getQuizForAttempt = async (req, res) => {
       });
     }
 
+    // Server-enforced individual timer
     const totalSeconds = quiz.duration * 60;
-    const elapsedSeconds = Math.max(0, Math.floor((Date.now() - new Date(attempt.startedAt).getTime()) / 1000));
+    const elapsedSeconds = Math.max(
+      0,
+      Math.floor((Date.now() - new Date(attempt.startedAt).getTime()) / 1000)
+    );
     const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds);
 
     // CRITICAL: NEVER leak correctAnswer or explanations to the client
@@ -319,12 +549,13 @@ export const getQuizForAttempt = async (req, res) => {
       _id: quiz._id,
       title: quiz.title,
       description: quiz.description,
-      quizCode: quiz.quizCode,
       duration: quiz.duration,
       totalSeconds,
       remainingSeconds,
       startedAt: attempt.startedAt,
       serverTime: new Date(),
+      accessDeadline: quiz.accessDeadline,
+      scheduledStartTime: quiz.scheduledStartTime,
       questions: safeQuestions,
     });
   } catch (err) {
@@ -333,7 +564,7 @@ export const getQuizForAttempt = async (req, res) => {
   }
 };
 
-// POST /api/quizzes/:id/submit (Server-side answer validation & score calculation)
+// POST /api/quizzes/:id/submit (Server-side validation & score calculation)
 export const submitQuiz = async (req, res) => {
   try {
     const quiz = await Quiz.findById(req.params.id);
@@ -341,16 +572,16 @@ export const submitQuiz = async (req, res) => {
       return res.status(404).json({ message: "Quiz not found." });
     }
 
-    // Verify student is associated with the quiz/admin via valid code
-    const isCreatorOrAdmin = req.user.role === "admin" || (quiz.createdBy && quiz.createdBy.equals(req.user._id));
+    const isCreatorOrAdmin =
+      req.user.role === "admin" || (quiz.createdBy && quiz.createdBy.equals(req.user._id));
     const user = await User.findById(req.user._id);
     const isEnrolled = user?.enrolledCodes?.some(
       (e) => String(e.quiz) === String(quiz._id) || e.code === quiz.quizCode
     );
 
-    if (!isCreatorOrAdmin && !isEnrolled) {
+    if (quiz.visibility === "private" && !isCreatorOrAdmin && !isEnrolled) {
       return res.status(403).json({
-        message: "Access restricted. You must join this quiz with a valid admin code before submitting.",
+        message: "Access restricted. You must join this quiz with a valid access code before submitting.",
       });
     }
 
@@ -367,7 +598,7 @@ export const submitQuiz = async (req, res) => {
       });
     }
 
-    // 2. Server-side elapsed time calculation (do NOT trust frontend timer)
+    // 2. Server-side elapsed time calculation
     const attempt = await QuizAttempt.findOne({
       user: req.user._id,
       quiz: quiz._id,
@@ -377,10 +608,16 @@ export const submitQuiz = async (req, res) => {
     let timeTakenSeconds = 0;
 
     if (attempt) {
-      const serverElapsed = Math.floor((Date.now() - new Date(attempt.startedAt).getTime()) / 1000);
+      const serverElapsed = Math.floor(
+        (Date.now() - new Date(attempt.startedAt).getTime()) / 1000
+      );
+      // Allow individual duration + 15s grace period for latency
       timeTakenSeconds = Math.min(Math.max(serverElapsed, 1), totalDurationSeconds);
     } else {
-      timeTakenSeconds = Math.min(Number(req.body.timeTakenSeconds) || 60, totalDurationSeconds);
+      timeTakenSeconds = Math.min(
+        Number(req.body.timeTakenSeconds) || 60,
+        totalDurationSeconds
+      );
     }
 
     // 3. Score calculation using canonical answers from MongoDB
@@ -461,7 +698,6 @@ export const submitQuiz = async (req, res) => {
       result: quizResult,
     });
   } catch (err) {
-    // Catch duplicate key errors gracefully
     if (err.code === 11000) {
       const existing = await QuizResult.findOne({ user: req.user._id, quiz: req.params.id });
       return res.status(400).json({
@@ -482,7 +718,6 @@ export const deleteQuiz = async (req, res) => {
       return res.status(404).json({ message: "Quiz not found." });
     }
 
-    // Verify ownership
     if (!quiz.createdBy.equals(req.user._id) && req.user.role !== "admin") {
       return res.status(403).json({ message: "You are not authorized to delete this quiz." });
     }
@@ -498,7 +733,7 @@ export const deleteQuiz = async (req, res) => {
   }
 };
 
-// GET /api/quizzes/admin/my (Admin's created quizzes with metrics)
+// GET /api/quizzes/admin/my (Admin's created quizzes with metrics, scheduling & status)
 export const getAdminQuizzes = async (req, res) => {
   try {
     const quizzes = await Quiz.find({ createdBy: req.user._id }).sort({ createdAt: -1 });
@@ -520,6 +755,11 @@ export const getAdminQuizzes = async (req, res) => {
           duration: quiz.duration,
           category: quiz.category,
           difficulty: quiz.difficulty,
+          visibility: quiz.visibility,
+          isPublished: quiz.isPublished,
+          scheduledStartTime: quiz.scheduledStartTime,
+          accessDeadline: quiz.accessDeadline,
+          status: computeQuizStatus(quiz),
           questionCount: quiz.questions.length,
           participantCount,
           avgScore,
@@ -540,7 +780,8 @@ export const getEnrolledQuizzes = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).populate({
       path: "enrolledCodes.quiz",
-      select: "title description quizCode duration category difficulty questions createdBy",
+      select:
+        "title description quizCode duration category difficulty visibility isPublished scheduledStartTime accessDeadline questions createdBy",
       populate: { path: "createdBy", select: "name email" },
     });
 
@@ -556,6 +797,10 @@ export const getEnrolledQuizzes = async (req, res) => {
         duration: e.quiz.duration,
         category: e.quiz.category,
         difficulty: e.quiz.difficulty,
+        visibility: e.quiz.visibility,
+        status: computeQuizStatus(e.quiz),
+        scheduledStartTime: e.quiz.scheduledStartTime,
+        accessDeadline: e.quiz.accessDeadline,
         questionCount: e.quiz.questions ? e.quiz.questions.length : 0,
         admin: e.quiz.createdBy,
         joinedAt: e.joinedAt,

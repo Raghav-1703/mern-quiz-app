@@ -2,15 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   Trophy,
-  Medal,
-  Award,
   Users,
   Clock,
-  Calendar,
-  Sparkles,
-  ArrowLeft,
-  Copy,
-  Check,
   LayoutDashboard,
   ExternalLink
 } from "lucide-react";
@@ -24,7 +17,6 @@ export default function QuizLeaderboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [copiedCode, setCopiedCode] = useState(false);
 
   useEffect(() => {
     fetchLeaderboard(quizId)
@@ -42,12 +34,6 @@ export default function QuizLeaderboard() {
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  const handleCopyCode = (code) => {
-    navigator.clipboard.writeText(code);
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2000);
-  };
-
   const getRankBadge = (rank) => {
     if (rank === 1) {
       return (
@@ -56,15 +42,15 @@ export default function QuizLeaderboard() {
             display: "inline-flex",
             alignItems: "center",
             gap: "4px",
-            background: "#FEF3C7",
-            color: "#B45309",
-            padding: "4px 10px",
-            borderRadius: "var(--radius-full)",
-            fontWeight: 800,
-            fontSize: "13px"
+            background: "var(--accent)",
+            color: "var(--text)",
+            padding: "3px 8px",
+            borderRadius: "var(--radius-sm)",
+            fontWeight: 700,
+            fontSize: "12px",
           }}
         >
-          🥇 1st Place
+          1st Place
         </span>
       );
     }
@@ -75,15 +61,15 @@ export default function QuizLeaderboard() {
             display: "inline-flex",
             alignItems: "center",
             gap: "4px",
-            background: "#F1F5F9",
-            color: "#475569",
-            padding: "4px 10px",
-            borderRadius: "var(--radius-full)",
-            fontWeight: 800,
-            fontSize: "13px"
+            background: "var(--border)",
+            color: "var(--text)",
+            padding: "3px 8px",
+            borderRadius: "var(--radius-sm)",
+            fontWeight: 700,
+            fontSize: "12px",
           }}
         >
-          🥈 2nd Place
+          2nd Place
         </span>
       );
     }
@@ -94,31 +80,25 @@ export default function QuizLeaderboard() {
             display: "inline-flex",
             alignItems: "center",
             gap: "4px",
-            background: "#FFEDD5",
-            color: "#C2410C",
-            padding: "4px 10px",
-            borderRadius: "var(--radius-full)",
-            fontWeight: 800,
-            fontSize: "13px"
+            background: "#FCE7C8",
+            color: "#9A3412",
+            padding: "3px 8px",
+            borderRadius: "var(--radius-sm)",
+            fontWeight: 700,
+            fontSize: "12px",
           }}
         >
-          🥉 3rd Place
+          3rd Place
         </span>
       );
     }
     return (
       <span
         style={{
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "28px",
-          height: "28px",
-          borderRadius: "50%",
-          background: "var(--surface-raised)",
+          fontFamily: "var(--font-mono)",
           color: "var(--text-muted)",
-          fontWeight: 700,
-          fontSize: "13px"
+          fontWeight: 600,
+          fontSize: "13px",
         }}
       >
         #{rank}
@@ -127,57 +107,42 @@ export default function QuizLeaderboard() {
   };
 
   return (
-    <div className="container" style={{ padding: "40px 24px 80px", maxWidth: "1000px" }}>
+    <div className="container" style={{ maxWidth: "860px", marginTop: "24px" }}>
       {/* Header */}
-      <div style={{ marginBottom: "32px", textAlign: "center" }}>
-        <div className="badge-modern" style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginBottom: "14px" }}>
-          <Trophy size={14} /> Official Leaderboard & Rankings
+      <div style={{ textAlign: "center", marginBottom: "28px" }}>
+        <div
+          style={{
+            width: "48px",
+            height: "48px",
+            borderRadius: "var(--radius-btn)",
+            background: "var(--accent)",
+            color: "var(--text)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "0 auto 14px",
+          }}
+        >
+          <Trophy size={24} />
         </div>
-        <h1 style={{ fontSize: "34px", fontWeight: 800, color: "var(--text-heading)", marginBottom: "8px" }}>
+        <h1 style={{ fontSize: "28px", color: "var(--text)", marginBottom: "6px" }}>
           {data?.quiz?.title || "Quiz Leaderboard"}
         </h1>
-        <p style={{ color: "var(--text-muted)", fontSize: "16px", maxWidth: "560px", margin: "0 auto 18px" }}>
-          Rankings are calculated dynamically by highest score, with fastest completion speed as the tiebreaker.
+        <p style={{ color: "var(--text-muted)", fontSize: "14px", maxWidth: "520px", margin: "0 auto" }}>
+          Rankings are calculated dynamically by score, with completion speed as the tiebreaker.
         </p>
-
-        {data?.quiz?.quizCode && (
-          <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "var(--surface)", border: "1.5px solid var(--border)", borderRadius: "var(--radius-full)", padding: "4px 12px 4px 16px" }}>
-            <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
-              Quiz Code:
-            </span>
-            <span style={{ fontFamily: "var(--font-mono)", fontWeight: 800, color: "var(--primary)" }}>
-              {data.quiz.quizCode}
-            </span>
-            <button
-              type="button"
-              onClick={() => handleCopyCode(data.quiz.quizCode)}
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: "4px",
-                display: "flex",
-                alignItems: "center",
-                color: copiedCode ? "var(--green)" : "var(--text-dim)"
-              }}
-              title="Copy code"
-            >
-              {copiedCode ? <Check size={16} /> : <Copy size={16} />}
-            </button>
-          </div>
-        )}
       </div>
 
       {loading && (
         <div className="state-msg-container">
           <div className="spinner" />
-          <p className="state-msg">Loading official leaderboard standings…</p>
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>Loading leaderboard standings…</p>
         </div>
       )}
 
       {error && (
-        <div className="card-modern text-center" style={{ padding: "40px 32px" }}>
-          <p style={{ color: "var(--coral)", fontSize: "16px", marginBottom: "20px" }}>{error}</p>
+        <div className="card-modern text-center" style={{ padding: "32px 20px" }}>
+          <p style={{ color: "var(--hard)", fontSize: "15px", marginBottom: "16px" }}>{error}</p>
           <Link to="/dashboard" className="btn-secondary">
             Return to Dashboard
           </Link>
@@ -193,13 +158,12 @@ export default function QuizLeaderboard() {
               alignItems: "center",
               justifyContent: "space-between",
               flexWrap: "wrap",
-              gap: "12px",
-              marginBottom: "16px",
-              padding: "0 4px"
+              gap: "10px",
+              marginBottom: "14px",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", fontWeight: 700, color: "var(--text-heading)" }}>
-              <Users size={18} color="var(--primary)" />
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: 600, color: "var(--text)" }}>
+              <Users size={16} color="var(--primary)" />
               {data.totalParticipants} Candidate{data.totalParticipants === 1 ? "" : "s"} Ranked
             </div>
 
@@ -208,30 +172,25 @@ export default function QuizLeaderboard() {
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "6px",
+                gap: "4px",
                 fontSize: "13px",
-                fontWeight: 700,
+                fontWeight: 600,
                 color: "var(--primary)",
-                textDecoration: "none"
               }}
             >
-              Attempt / Retake Quiz <ExternalLink size={14} />
+              Take Quiz <ExternalLink size={13} />
             </Link>
           </div>
 
           {/* Table Card */}
-          <div className="card-modern" style={{ overflow: "hidden", marginBottom: "32px" }}>
+          <div className="card-modern" style={{ padding: 0, overflow: "hidden", marginBottom: "28px" }}>
             {data.leaderboard.length === 0 ? (
-              <div style={{ padding: "64px 32px", textAlign: "center" }}>
-                <Trophy size={48} color="var(--primary)" style={{ opacity: 0.35, marginBottom: "16px" }} />
-                <h3 style={{ fontSize: "18px", color: "var(--text-heading)", marginBottom: "8px" }}>
-                  No Submissions Recorded Yet
-                </h3>
-                <p style={{ color: "var(--text-muted)", fontSize: "14px", marginBottom: "24px" }}>
-                  Be the very first candidate to take this quiz and claim the #1 spot!
+              <div style={{ padding: "48px 24px", textAlign: "center" }}>
+                <p style={{ color: "var(--text-muted)", fontSize: "14px", marginBottom: "16px" }}>
+                  No submissions recorded for this quiz yet.
                 </p>
                 <Link to={`/quiz/${quizId}`} className="btn-primary">
-                  Start Quiz Now
+                  Be the First to Take It
                 </Link>
               </div>
             ) : (
@@ -239,7 +198,7 @@ export default function QuizLeaderboard() {
                 <table className="modern-table">
                   <thead>
                     <tr>
-                      <th style={{ width: "120px" }}>Rank</th>
+                      <th style={{ width: "110px" }}>Rank</th>
                       <th>Candidate</th>
                       <th>Score</th>
                       <th>Accuracy</th>
@@ -256,26 +215,25 @@ export default function QuizLeaderboard() {
                         <tr
                           key={entry.resultId || entry.rank}
                           style={{
-                            background: isCurrentUser ? "#FAF5FF" : undefined
+                            background: isCurrentUser ? "var(--primary-soft)" : undefined,
                           }}
                         >
                           <td>{getRankBadge(entry.rank)}</td>
                           <td>
-                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                              <span style={{ fontWeight: 700, color: "var(--text-heading)" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                              <span style={{ fontWeight: 600, color: "var(--text)" }}>
                                 {entry.playerName}
                               </span>
                               {isCurrentUser && (
                                 <span
                                   style={{
                                     fontSize: "10px",
-                                    fontWeight: 800,
+                                    fontWeight: 700,
                                     textTransform: "uppercase",
-                                    background: "var(--primary-light)",
-                                    color: "var(--primary)",
-                                    border: "1px solid var(--border-purple)",
-                                    padding: "2px 8px",
-                                    borderRadius: "var(--radius-full)"
+                                    background: "var(--primary)",
+                                    color: "#FFFFFF",
+                                    padding: "1px 6px",
+                                    borderRadius: "var(--radius-sm)",
                                   }}
                                 >
                                   You
@@ -284,31 +242,36 @@ export default function QuizLeaderboard() {
                             </div>
                           </td>
                           <td>
-                            <span style={{ fontWeight: 700, color: "var(--text-heading)", fontSize: "15px" }}>
+                            <span style={{ fontWeight: 600, color: "var(--text)" }}>
                               {entry.score}
                             </span>
-                            <span style={{ color: "var(--text-muted)", fontSize: "13px" }}>
-                              {" "}/ {entry.totalMarks}
+                            <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>
+                              {" "} / {entry.totalMarks}
                             </span>
                           </td>
                           <td>
                             <span
-                              className={`status-pill ${
-                                entry.percentage >= 80
-                                  ? "status-success"
-                                  : entry.percentage >= 50
-                                  ? "status-warning"
-                                  : "status-danger"
-                              }`}
+                              className="badge-tag"
+                              style={{
+                                background:
+                                  entry.percentage >= 80
+                                    ? "rgba(63, 125, 88, 0.12)"
+                                    : entry.percentage >= 50
+                                    ? "rgba(183, 121, 31, 0.12)"
+                                    : "rgba(178, 58, 58, 0.12)",
+                                color:
+                                  entry.percentage >= 80
+                                    ? "var(--easy)"
+                                    : entry.percentage >= 50
+                                    ? "var(--medium)"
+                                    : "var(--hard)",
+                              }}
                             >
                               {entry.percentage}%
                             </span>
                           </td>
-                          <td>
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontFamily: "var(--font-mono)", fontSize: "13px" }}>
-                              <Clock size={14} color="var(--text-dim)" />
-                              {formatTime(entry.timeTaken)}
-                            </span>
+                          <td style={{ color: "var(--text-muted)", fontSize: "13px" }}>
+                            {formatTime(entry.timeTaken)}
                           </td>
                           <td style={{ color: "var(--text-muted)", fontSize: "13px" }}>
                             {new Date(entry.submittedAt).toLocaleDateString()}
@@ -322,21 +285,13 @@ export default function QuizLeaderboard() {
             )}
           </div>
 
-          {/* Navigation Action Buttons */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "14px", flexWrap: "wrap" }}>
-            <Link
-              to="/dashboard"
-              className="btn-primary"
-              style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
-            >
-              <LayoutDashboard size={18} />
+          {/* Navigation Buttons */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+            <Link to="/dashboard" className="btn-primary">
+              <LayoutDashboard size={16} />
               Return to Dashboard
             </Link>
-            <Link
-              to="/"
-              className="btn-secondary"
-              style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
-            >
+            <Link to="/" className="btn-secondary">
               Explore More Quizzes
             </Link>
           </div>

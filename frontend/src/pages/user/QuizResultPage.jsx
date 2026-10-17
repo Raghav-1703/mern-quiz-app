@@ -8,10 +8,7 @@ import {
   Award,
   HelpCircle,
   LayoutDashboard,
-  RotateCcw,
   Sparkles,
-  ArrowRight,
-  ChevronDown,
   BookOpen
 } from "lucide-react";
 import { fetchResultById } from "../../services/resultService.js";
@@ -23,7 +20,7 @@ export default function QuizResultPage() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activeFilter, setActiveFilter] = useState("all"); // 'all', 'correct', 'incorrect'
+  const [activeFilter, setActiveFilter] = useState("all");
 
   useEffect(() => {
     fetchResultById(id)
@@ -39,38 +36,39 @@ export default function QuizResultPage() {
     return (
       <div className="state-msg-container">
         <div className="spinner" />
-        <p className="state-msg">Grading submission & compiling breakdown…</p>
+        <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
+          Grading submission & compiling results…
+        </p>
       </div>
     );
   }
 
   if (error || !result) {
     return (
-      <div className="container" style={{ padding: "60px 24px", maxWidth: "600px" }}>
-        <div className="card-modern text-center" style={{ padding: "40px 32px" }}>
+      <div className="container" style={{ padding: "48px 24px", maxWidth: "560px" }}>
+        <div className="card-modern text-center" style={{ padding: "36px 24px" }}>
           <div
             style={{
-              width: "60px",
-              height: "60px",
-              borderRadius: "50%",
-              background: "var(--coral-light)",
-              color: "var(--coral)",
+              width: "50px",
+              height: "50px",
+              borderRadius: "var(--radius-btn)",
+              background: "rgba(178, 58, 58, 0.12)",
+              color: "var(--hard)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              margin: "0 auto 20px"
+              margin: "0 auto 16px"
             }}
           >
-            <XCircle size={32} />
+            <XCircle size={26} />
           </div>
-          <h2 style={{ fontSize: "24px", marginBottom: "12px", color: "var(--text-heading)" }}>
+          <h2 style={{ fontSize: "22px", marginBottom: "8px", color: "var(--text)" }}>
             Result Not Found
           </h2>
-          <p style={{ color: "var(--text-muted)", marginBottom: "28px" }}>
+          <p style={{ color: "var(--text-muted)", marginBottom: "20px" }}>
             {error || "Could not retrieve results for this attempt."}
           </p>
-          <Link to="/dashboard" className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-            <LayoutDashboard size={18} />
+          <Link to="/dashboard" className="btn-primary">
             Return to Dashboard
           </Link>
         </div>
@@ -85,15 +83,15 @@ export default function QuizResultPage() {
   };
 
   const percentage = result.percentage || 0;
-  const radius = 68;
+  const radius = 64;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - percentage / 100);
 
   const getCelebration = () => {
-    if (percentage >= 90) return { title: "Outstanding Mastery! 🏆", desc: "You performed exceptionally well on this quiz." };
-    if (percentage >= 75) return { title: "Great Job! 🎉", desc: "You passed with strong confidence and accuracy." };
-    if (percentage >= 50) return { title: "Good Effort! 👏", desc: "You're getting there! Review missed concepts below." };
-    return { title: "Keep Practicing! 💪", desc: "Review your explanations below to sharpen your knowledge." };
+    if (percentage >= 90) return { title: "Outstanding Mastery!", desc: "Excellent conceptual understanding." };
+    if (percentage >= 75) return { title: "Great Job!", desc: "Passed with strong confidence and accuracy." };
+    if (percentage >= 50) return { title: "Good Effort!", desc: "Review missed concepts below to improve." };
+    return { title: "Keep Practicing!", desc: "Review your explanations below to sharpen your knowledge." };
   };
 
   const celebration = getCelebration();
@@ -105,60 +103,44 @@ export default function QuizResultPage() {
   });
 
   return (
-    <div className="container" style={{ padding: "40px 24px 80px", maxWidth: "920px" }}>
+    <div className="container" style={{ maxWidth: "860px", marginTop: "20px" }}>
       {/* Result Hero Header */}
-      <div className="card-modern text-center" style={{ padding: "48px 32px 40px", marginBottom: "32px", position: "relative", overflow: "hidden" }}>
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: "6px",
-            background: "var(--primary-gradient)"
-          }}
-        />
-
-        <div className="badge-modern" style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
-          <Sparkles size={14} /> Official Performance Assessment
+      <div className="card-modern" style={{ textAlign: "center", padding: "40px 24px", marginBottom: "24px" }}>
+        <div className="hero-pill-badge" style={{ marginBottom: "12px" }}>
+          <Sparkles size={13} />
+          <span>Official Assessment Results</span>
         </div>
 
-        <h1 style={{ fontSize: "32px", fontWeight: 800, color: "var(--text-heading)", marginBottom: "8px" }}>
+        <h1 style={{ fontSize: "28px", color: "var(--text)", marginBottom: "6px" }}>
           {celebration.title}
         </h1>
-        <p style={{ color: "var(--text-muted)", fontSize: "16px", maxWidth: "540px", margin: "0 auto 28px" }}>
+        <p style={{ color: "var(--text-muted)", fontSize: "15px", maxWidth: "480px", margin: "0 auto 24px" }}>
           {result.quiz?.title ? `For quiz: ${result.quiz.title}` : celebration.desc}
         </p>
 
         {/* Circular Progress Gauge */}
-        <div style={{ position: "relative", width: "160px", height: "160px", margin: "0 auto 32px" }}>
-          <svg width="160" height="160" viewBox="0 0 160 160" style={{ transform: "rotate(-90deg)" }}>
+        <div style={{ position: "relative", width: "150px", height: "150px", margin: "0 auto 24px" }}>
+          <svg width="150" height="150" viewBox="0 0 150 150" style={{ transform: "rotate(-90deg)" }}>
             <circle
-              cx="80"
-              cy="80"
+              cx="75"
+              cy="75"
               r={radius}
               fill="none"
-              stroke="#F1EDF8"
-              strokeWidth="12"
+              stroke="var(--primary-soft)"
+              strokeWidth="10"
             />
             <circle
-              cx="80"
-              cy="80"
+              cx="75"
+              cy="75"
               r={radius}
               fill="none"
-              stroke="url(#quizGrad)"
-              strokeWidth="12"
+              stroke="var(--primary)"
+              strokeWidth="10"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
-              style={{ transition: "stroke-dashoffset 1.2s ease" }}
+              style={{ transition: "stroke-dashoffset 1s ease" }}
             />
-            <defs>
-              <linearGradient id="quizGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#7C3AED" />
-                <stop offset="100%" stopColor="#6366F1" />
-              </linearGradient>
-            </defs>
           </svg>
           <div
             style={{
@@ -170,240 +152,152 @@ export default function QuizResultPage() {
               justifyContent: "center"
             }}
           >
-            <span style={{ fontSize: "32px", fontWeight: 800, color: "var(--text-heading)", lineHeight: 1 }}>
+            <span style={{ fontSize: "28px", fontWeight: 700, color: "var(--text)", lineHeight: 1 }}>
               {percentage}%
             </span>
-            <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-muted)", marginTop: "4px" }}>
+            <span style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>
               {result.score} / {result.totalMarks} Marks
             </span>
           </div>
         </div>
 
         {/* 4 Performance Metric Boxes */}
-        <div className="stat-grid" style={{ marginBottom: "32px" }}>
-          <div className="stat-box">
-            <div className="stat-icon-wrap" style={{ background: "var(--green-light)", color: "#15803d" }}>
-              <CheckCircle2 size={24} />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px", marginBottom: "24px" }}>
+          <div className="stat-box" style={{ padding: "14px", justifyContent: "center" }}>
+            <div className="stat-icon-wrapper" style={{ width: "36px", height: "36px" }}>
+              <CheckCircle2 size={18} />
             </div>
-            <div className="stat-number">{result.correctAnswers}</div>
-            <div className="stat-title">Correct Answers</div>
+            <div className="stat-info-col" style={{ textAlign: "left" }}>
+              <span className="stat-value" style={{ fontSize: "20px" }}>{result.correctAnswers}</span>
+              <span className="stat-label-text">Correct</span>
+            </div>
           </div>
 
-          <div className="stat-box">
-            <div className="stat-icon-wrap" style={{ background: "var(--coral-light)", color: "var(--coral)" }}>
-              <XCircle size={24} />
+          <div className="stat-box" style={{ padding: "14px", justifyContent: "center" }}>
+            <div className="stat-icon-wrapper" style={{ width: "36px", height: "36px", background: "rgba(178, 58, 58, 0.12)", color: "var(--hard)" }}>
+              <XCircle size={18} />
             </div>
-            <div className="stat-number">{result.incorrectAnswers}</div>
-            <div className="stat-title">Incorrect / Skipped</div>
+            <div className="stat-info-col" style={{ textAlign: "left" }}>
+              <span className="stat-value" style={{ fontSize: "20px" }}>{result.incorrectAnswers}</span>
+              <span className="stat-label-text">Incorrect</span>
+            </div>
           </div>
 
-          <div className="stat-box">
-            <div className="stat-icon-wrap" style={{ background: "var(--amber-light)", color: "#b45309" }}>
-              <Clock size={24} />
+          <div className="stat-box" style={{ padding: "14px", justifyContent: "center" }}>
+            <div className="stat-icon-wrapper" style={{ width: "36px", height: "36px" }}>
+              <Clock size={18} />
             </div>
-            <div className="stat-number">{formatTime(result.timeTaken)}</div>
-            <div className="stat-title">Time Taken</div>
+            <div className="stat-info-col" style={{ textAlign: "left" }}>
+              <span className="stat-value" style={{ fontSize: "20px" }}>{formatTime(result.timeTaken)}</span>
+              <span className="stat-label-text">Time Taken</span>
+            </div>
           </div>
 
-          <div className="stat-box">
-            <div className="stat-icon-wrap" style={{ background: "var(--primary-light)", color: "var(--primary)" }}>
-              <Award size={24} />
+          <div className="stat-box" style={{ padding: "14px", justifyContent: "center" }}>
+            <div className="stat-icon-wrapper" style={{ width: "36px", height: "36px" }}>
+              <Award size={18} />
             </div>
-            <div className="stat-number">{result.totalQuestions}</div>
-            <div className="stat-title">Total Questions</div>
+            <div className="stat-info-col" style={{ textAlign: "left" }}>
+              <span className="stat-value" style={{ fontSize: "20px" }}>{result.totalQuestions}</span>
+              <span className="stat-label-text">Questions</span>
+            </div>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "14px", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", flexWrap: "wrap" }}>
           {result.quiz?._id && (
-            <Link
-              to={`/leaderboard/${result.quiz._id}`}
-              className="btn-primary"
-              style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
-            >
-              <Trophy size={18} />
-              View Quiz Leaderboard
+            <Link to={`/leaderboard/${result.quiz._id}`} className="btn-primary">
+              <Trophy size={16} />
+              View Leaderboard
             </Link>
           )}
-          <Link
-            to="/dashboard"
-            className="btn-secondary"
-            style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
-          >
-            <LayoutDashboard size={18} />
-            Return to Dashboard
+          <Link to="/dashboard" className="btn-secondary">
+            <LayoutDashboard size={16} />
+            Back to Dashboard
           </Link>
         </div>
       </div>
 
-      {/* Question-by-Question Review Section */}
+      {/* Question Review Section */}
       {result.answers && result.answers.length > 0 && (
-        <div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-              gap: "16px",
-              marginBottom: "20px"
-            }}
-          >
+        <div style={{ marginBottom: "40px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px", marginBottom: "16px" }}>
             <div>
-              <h2 style={{ fontSize: "22px", fontWeight: 800, color: "var(--text-heading)", display: "flex", alignItems: "center", gap: "8px" }}>
-                <BookOpen size={22} color="var(--primary)" />
-                Detailed Question Review
-              </h2>
-              <p style={{ fontSize: "14px", color: "var(--text-muted)", marginTop: "2px" }}>
-                Review your selections, correct answers, and conceptual rationales.
+              <h2 style={{ fontSize: "20px", color: "var(--text)" }}>Question Review</h2>
+              <p style={{ fontSize: "13px", color: "var(--text-muted)" }}>
+                Examine your responses, correct answers, and explanations.
               </p>
             </div>
 
-            {/* Filter Pills */}
-            <div style={{ display: "flex", gap: "8px", background: "var(--surface)", padding: "4px", borderRadius: "var(--radius-md)", border: "1px solid var(--border)" }}>
+            <div className="filter-tabs-row" style={{ marginBottom: 0 }}>
               <button
                 type="button"
                 onClick={() => setActiveFilter("all")}
-                style={{
-                  padding: "6px 14px",
-                  borderRadius: "var(--radius-sm)",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  border: "none",
-                  cursor: "pointer",
-                  background: activeFilter === "all" ? "var(--primary)" : "transparent",
-                  color: activeFilter === "all" ? "#fff" : "var(--text-muted)"
-                }}
+                className={`filter-tab-btn ${activeFilter === "all" ? "active" : ""}`}
               >
                 All ({result.answers.length})
               </button>
               <button
                 type="button"
                 onClick={() => setActiveFilter("correct")}
-                style={{
-                  padding: "6px 14px",
-                  borderRadius: "var(--radius-sm)",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  border: "none",
-                  cursor: "pointer",
-                  background: activeFilter === "correct" ? "var(--green)" : "transparent",
-                  color: activeFilter === "correct" ? "#fff" : "var(--text-muted)"
-                }}
+                className={`filter-tab-btn ${activeFilter === "correct" ? "active" : ""}`}
               >
                 Correct ({result.correctAnswers})
               </button>
               <button
                 type="button"
                 onClick={() => setActiveFilter("incorrect")}
-                style={{
-                  padding: "6px 14px",
-                  borderRadius: "var(--radius-sm)",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  border: "none",
-                  cursor: "pointer",
-                  background: activeFilter === "incorrect" ? "var(--coral)" : "transparent",
-                  color: activeFilter === "incorrect" ? "#fff" : "var(--text-muted)"
-                }}
+                className={`filter-tab-btn ${activeFilter === "incorrect" ? "active" : ""}`}
               >
                 Incorrect ({result.incorrectAnswers})
               </button>
             </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
             {filteredAnswers.map((item, idx) => {
               const isCorrect = item.isCorrect;
               const answered = item.selectedAnswer !== null && item.selectedAnswer !== undefined;
 
               return (
-                <div
-                  key={idx}
-                  className="card-modern"
-                  style={{
-                    padding: "24px 28px",
-                    borderLeft: `5px solid ${isCorrect ? "var(--green)" : "var(--coral)"}`
-                  }}
-                >
-                  {/* Question header */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      marginBottom: "14px"
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: "13px",
-                        fontWeight: 700,
-                        color: "var(--text-muted)",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.05em"
-                      }}
-                    >
+                <div key={idx} className="card-modern" style={{ padding: "20px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                    <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
                       Question {idx + 1}
                     </span>
-
                     <span
+                      className="badge-tag"
                       style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "4px 12px",
-                        borderRadius: "var(--radius-full)",
-                        fontSize: "12px",
-                        fontWeight: 700,
-                        background: isCorrect ? "var(--green-light)" : "var(--coral-light)",
-                        color: isCorrect ? "#15803d" : "var(--coral)"
+                        background: isCorrect ? "rgba(63, 125, 88, 0.12)" : "rgba(178, 58, 58, 0.12)",
+                        color: isCorrect ? "var(--easy)" : "var(--hard)",
                       }}
                     >
-                      {isCorrect ? (
-                        <>
-                          <CheckCircle2 size={14} /> Correct (+1 Mark)
-                        </>
-                      ) : (
-                        <>
-                          <XCircle size={14} /> {answered ? "Incorrect" : "Unanswered"}
-                        </>
-                      )}
+                      {isCorrect ? "Correct (+1)" : answered ? "Incorrect" : "Unanswered"}
                     </span>
                   </div>
 
-                  {/* Question text */}
-                  <h3
-                    style={{
-                      fontSize: "17px",
-                      fontWeight: 700,
-                      color: "var(--text-heading)",
-                      marginBottom: "18px",
-                      lineHeight: 1.45
-                    }}
-                  >
+                  <h3 style={{ fontSize: "16px", color: "var(--text)", marginBottom: "14px", lineHeight: 1.4 }}>
                     {item.questionText}
                   </h3>
 
-                  {/* Options List */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "16px" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "12px" }}>
                     {item.options.map((opt, optIdx) => {
                       const isUserChoice = item.selectedAnswer === optIdx;
                       const isCorrectChoice = item.correctAnswer === optIdx;
 
-                      let rowBg = "var(--surface-raised)";
-                      let rowBorder = "var(--border)";
-                      let textColor = "var(--text-main)";
+                      let bg = "var(--bg)";
+                      let borderColor = "var(--border)";
+                      let color = "var(--text)";
 
                       if (isCorrectChoice) {
-                        rowBg = "var(--green-light)";
-                        rowBorder = "#86efac";
-                        textColor = "#14532d";
+                        bg = "rgba(63, 125, 88, 0.12)";
+                        borderColor = "var(--easy)";
+                        color = "var(--easy)";
                       } else if (isUserChoice && !isCorrect) {
-                        rowBg = "var(--coral-light)";
-                        rowBorder = "#fca5a5";
-                        textColor = "#7f1d1d";
+                        bg = "rgba(178, 58, 58, 0.12)";
+                        borderColor = "var(--hard)";
+                        color = "var(--hard)";
                       }
 
                       return (
@@ -413,31 +307,16 @@ export default function QuizResultPage() {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "space-between",
-                            padding: "12px 16px",
-                            borderRadius: "var(--radius-md)",
-                            background: rowBg,
-                            border: `1.5px solid ${rowBorder}`,
-                            color: textColor,
-                            fontSize: "14px"
+                            padding: "10px 14px",
+                            borderRadius: "var(--radius-btn)",
+                            background: bg,
+                            border: `1px solid ${borderColor}`,
+                            color: color,
+                            fontSize: "13px",
                           }}
                         >
-                          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                            <span
-                              style={{
-                                width: "26px",
-                                height: "26px",
-                                borderRadius: "50%",
-                                background: isCorrectChoice ? "#15803d" : isUserChoice ? "#b91c1c" : "var(--surface)",
-                                color: isCorrectChoice || isUserChoice ? "#ffffff" : "var(--text-muted)",
-                                border: "1px solid var(--border)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontSize: "12px",
-                                fontWeight: 700,
-                                flexShrink: 0
-                              }}
-                            >
+                          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <span style={{ fontWeight: 700, fontFamily: "var(--font-mono)" }}>
                               {OPTION_LABELS[optIdx]}
                             </span>
                             <span style={{ fontWeight: isCorrectChoice || isUserChoice ? 600 : 400 }}>
@@ -445,60 +324,36 @@ export default function QuizResultPage() {
                             </span>
                           </div>
 
-                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            {isCorrectChoice && (
-                              <span
-                                style={{
-                                  fontSize: "11px",
-                                  fontWeight: 800,
-                                  textTransform: "uppercase",
-                                  padding: "2px 8px",
-                                  borderRadius: "var(--radius-full)",
-                                  background: "#15803d",
-                                  color: "#ffffff"
-                                }}
-                              >
-                                Correct Answer
-                              </span>
-                            )}
-                            {isUserChoice && !isCorrect && (
-                              <span
-                                style={{
-                                  fontSize: "11px",
-                                  fontWeight: 800,
-                                  textTransform: "uppercase",
-                                  padding: "2px 8px",
-                                  borderRadius: "var(--radius-full)",
-                                  background: "#b91c1c",
-                                  color: "#ffffff"
-                                }}
-                              >
-                                Your Choice
-                              </span>
-                            )}
-                          </div>
+                          {isCorrectChoice && (
+                            <span style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase" }}>
+                              Correct Answer
+                            </span>
+                          )}
+                          {isUserChoice && !isCorrect && (
+                            <span style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase" }}>
+                              Your Choice
+                            </span>
+                          )}
                         </div>
                       );
                     })}
                   </div>
 
-                  {/* Explanation Callout */}
                   {item.explanation && (
                     <div
                       style={{
+                        background: "var(--primary-soft)",
+                        border: "1px solid #C4DCD0",
+                        borderRadius: "var(--radius-btn)",
+                        padding: "10px 14px",
+                        fontSize: "13px",
+                        color: "var(--text)",
                         display: "flex",
                         alignItems: "flex-start",
-                        gap: "10px",
-                        background: "var(--primary-light)",
-                        border: "1px solid var(--border-purple)",
-                        borderRadius: "var(--radius-md)",
-                        padding: "12px 16px",
-                        fontSize: "13px",
-                        color: "var(--text-heading)",
-                        lineHeight: 1.5
+                        gap: "8px",
                       }}
                     >
-                      <HelpCircle size={18} color="var(--primary)" style={{ flexShrink: 0, marginTop: "2px" }} />
+                      <HelpCircle size={16} color="var(--primary)" style={{ flexShrink: 0, marginTop: "2px" }} />
                       <div>
                         <strong style={{ color: "var(--primary)" }}>Explanation: </strong>
                         {item.explanation}

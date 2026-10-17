@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchQuizAttempt, submitQuizAnswers } from "../../services/quizService.js";
-import { Clock, AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, Send, Sparkles, HelpCircle } from "lucide-react";
+import { Clock, AlertTriangle, ChevronLeft, ChevronRight, Send, HelpCircle } from "lucide-react";
 
 const OPTION_LABELS = ["A", "B", "C", "D", "E", "F"];
 
@@ -149,7 +149,7 @@ export default function QuizAttempt() {
     return (
       <div className="state-msg-container">
         <div className="spinner" />
-        <p style={{ color: "var(--text-muted)", fontSize: "15px", fontWeight: 500 }}>
+        <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
           Preparing your secure quiz environment…
         </p>
       </div>
@@ -158,11 +158,11 @@ export default function QuizAttempt() {
 
   if (status === "error") {
     return (
-      <div className="container" style={{ maxWidth: "600px" }}>
-        <div className="alert-box alert-error" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          <h3 style={{ fontSize: "18px", color: "#9f1239" }}>Unable to Start Quiz</h3>
+      <div className="container" style={{ maxWidth: "560px", marginTop: "40px" }}>
+        <div className="alert-box alert-error" style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "20px" }}>
+          <h3 style={{ fontSize: "17px", color: "var(--hard)" }}>Unable to Start Quiz</h3>
           <p>{errorMessage}</p>
-          <button onClick={() => navigate("/dashboard")} className="btn-secondary" style={{ width: "fit-content", marginTop: "12px" }}>
+          <button onClick={() => navigate("/dashboard")} className="btn-secondary" style={{ width: "fit-content", marginTop: "10px" }}>
             Return to Dashboard
           </button>
         </div>
@@ -177,23 +177,23 @@ export default function QuizAttempt() {
   const answeredCount = Object.keys(selectedAnswers).length;
 
   return (
-    <div className="container" style={{ maxWidth: "860px" }}>
+    <div className="container" style={{ maxWidth: "820px", marginTop: "16px" }}>
       {/* Quiz Top Bar */}
       <div className="quiz-stage-header-clean">
         <div>
-          <span className="code-pill font-mono" style={{ fontSize: "12px", marginBottom: "6px", display: "inline-block" }}>
-            CODE: {quiz.quizCode}
+          <h2 style={{ fontSize: "20px", color: "var(--text)" }}>{quiz.title}</h2>
+          <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+            {totalQuestions} questions &bull; {quiz.duration} min duration
           </span>
-          <h2 style={{ fontSize: "22px", color: "var(--text-heading)" }}>{quiz.title}</h2>
         </div>
 
-        {/* Real-time Timer Display */}
+        {/* Real-time Countdown Timer */}
         <div className={`timer-badge-clean ${isTimeCritical ? "timer-critical-clean" : ""}`}>
-          <Clock size={20} color={isTimeCritical ? "var(--coral)" : "var(--primary)"} />
+          <Clock size={18} color={isTimeCritical ? "var(--hard)" : "var(--primary)"} />
           <div>
             <div className="timer-text-clean">{formatTimer(secondsLeft)}</div>
-            <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", color: isTimeCritical ? "var(--coral)" : "var(--text-muted)", letterSpacing: "0.05em" }}>
-              {isTimeCritical ? "Ending Soon!" : "Time Remaining"}
+            <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", color: isTimeCritical ? "var(--hard)" : "var(--text-muted)" }}>
+              {isTimeCritical ? "Ending Soon" : "Remaining"}
             </div>
           </div>
         </div>
@@ -202,13 +202,13 @@ export default function QuizAttempt() {
       {/* Progress & Question Palette */}
       <div className="palette-clean">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", fontSize: "13px", fontWeight: 600 }}>
-          <span style={{ color: "var(--text-heading)" }}>Question {currentIndex + 1} of {totalQuestions}</span>
-          <span style={{ color: "var(--primary)", background: "var(--primary-light)", padding: "3px 10px", borderRadius: "var(--radius-full)" }}>
+          <span style={{ color: "var(--text)" }}>Question {currentIndex + 1} of {totalQuestions}</span>
+          <span style={{ color: "var(--primary)", background: "var(--primary-soft)", padding: "2px 8px", borderRadius: "var(--radius-sm)" }}>
             {answeredCount} of {totalQuestions} Answered
           </span>
         </div>
 
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
           {quiz.questions.map((q, idx) => {
             const isAnswered = selectedAnswers[q._id] !== undefined;
             const isCurrent = idx === currentIndex;
@@ -232,11 +232,11 @@ export default function QuizAttempt() {
 
       {/* Question Card */}
       <div className="question-card-clean">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-          <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--primary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+          <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--primary)", textTransform: "uppercase" }}>
             Question {currentIndex + 1}
           </span>
-          <span style={{ fontSize: "12px", fontWeight: 700, background: "var(--surface-raised)", border: "1px solid var(--border)", padding: "3px 10px", borderRadius: "var(--radius-full)", color: "var(--text-muted)" }}>
+          <span style={{ fontSize: "12px", color: "var(--text-muted)", background: "var(--bg)", border: "1px solid var(--border)", padding: "2px 8px", borderRadius: "var(--radius-sm)" }}>
             +{currentQuestion.marks || 1} mark
           </span>
         </div>
@@ -244,7 +244,7 @@ export default function QuizAttempt() {
         <h3 className="question-text-clean">{currentQuestion.question}</h3>
 
         {/* Options List */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           {currentQuestion.options.map((option, optIdx) => {
             const isSelected = currentSelection === optIdx;
             return (
@@ -256,18 +256,18 @@ export default function QuizAttempt() {
                 disabled={submitting || secondsLeft <= 0}
               >
                 <span className="option-letter-clean">{OPTION_LABELS[optIdx]}</span>
-                <span style={{ fontSize: "15px", fontWeight: 500, flex: 1 }}>{option}</span>
+                <span style={{ fontSize: "14px", fontWeight: 500, flex: 1 }}>{option}</span>
               </button>
             );
           })}
         </div>
 
         {currentSelection !== undefined && (
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "16px" }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "14px" }}>
             <button
               type="button"
               className="btn-link"
-              style={{ color: "var(--text-muted)" }}
+              style={{ color: "var(--text-muted)", fontSize: "13px" }}
               onClick={handleClearSelection}
             >
               Clear Choice
@@ -284,11 +284,11 @@ export default function QuizAttempt() {
           onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
           disabled={currentIndex === 0 || submitting}
         >
-          <ChevronLeft size={16} />
+          <ChevronLeft size={15} />
           Previous
         </button>
 
-        <div style={{ display: "flex", gap: "12px" }}>
+        <div style={{ display: "flex", gap: "10px" }}>
           {currentIndex < totalQuestions - 1 ? (
             <button
               type="button"
@@ -296,18 +296,18 @@ export default function QuizAttempt() {
               onClick={() => setCurrentIndex((prev) => Math.min(totalQuestions - 1, prev + 1))}
               disabled={submitting}
             >
-              Next Question
-              <ChevronRight size={16} />
+              Next
+              <ChevronRight size={15} />
             </button>
           ) : (
             <button
               type="button"
-              className="btn-submit"
+              className="btn-primary"
               onClick={() => setShowConfirmModal(true)}
               disabled={submitting}
             >
-              <Send size={16} />
-              {submitting ? "Submitting Answers…" : "Submit Quiz"}
+              <Send size={15} />
+              {submitting ? "Submitting…" : "Submit Quiz"}
             </button>
           )}
         </div>
@@ -317,22 +317,22 @@ export default function QuizAttempt() {
       {showConfirmModal && (
         <div className="modal-overlay">
           <div className="modal-card">
-            <h3 style={{ fontSize: "20px", color: "var(--text-heading)", marginBottom: "8px" }}>
-              Ready to Submit Your Quiz?
+            <h3 style={{ fontSize: "19px", color: "var(--text)", marginBottom: "8px" }}>
+              Submit Your Quiz?
             </h3>
-            <p style={{ fontSize: "14px", color: "var(--text-body)", marginBottom: "14px" }}>
+            <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "14px" }}>
               You have answered <strong>{answeredCount}</strong> out of{" "}
               <strong>{totalQuestions}</strong> questions.
             </p>
 
             {answeredCount < totalQuestions && (
-              <div className="alert-box alert-warning" style={{ marginBottom: "20px" }}>
-                <AlertTriangle size={16} />
-                <span>You still have {totalQuestions - answeredCount} unanswered questions!</span>
+              <div className="alert-box alert-warning" style={{ marginBottom: "18px" }}>
+                <AlertTriangle size={15} />
+                <span>You have {totalQuestions - answeredCount} unanswered questions!</span>
               </div>
             )}
 
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "24px" }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
               <button
                 type="button"
                 className="btn-secondary"
@@ -350,7 +350,7 @@ export default function QuizAttempt() {
                 }}
                 disabled={submitting}
               >
-                {submitting ? "Grading…" : "Yes, Submit Now →"}
+                {submitting ? "Grading…" : "Confirm Submission"}
               </button>
             </div>
           </div>

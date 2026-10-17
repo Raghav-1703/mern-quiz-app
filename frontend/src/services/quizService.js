@@ -30,6 +30,11 @@ export const createQuiz = async (quizData) => {
   return res.data;
 };
 
+export const updateQuiz = async (id, quizData) => {
+  const res = await api.put(`/quizzes/${id}`, quizData);
+  return res.data;
+};
+
 export const deleteQuiz = async (id) => {
   const res = await api.delete(`/quizzes/${id}`);
   return res.data;

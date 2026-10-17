@@ -5,11 +5,6 @@ import {
   Trophy,
   ArrowLeft,
   Users,
-  Clock,
-  Calendar,
-  ExternalLink,
-  CheckCircle2,
-  XCircle,
   FileText
 } from "lucide-react";
 import { fetchQuizResults } from "../../services/resultService.js";
@@ -25,7 +20,7 @@ export default function QuizResults() {
   useEffect(() => {
     Promise.all([fetchQuizResults(quizId), fetchQuizById(quizId)])
       .then(([resultsData, quizData]) => {
-        setResults(resultsData);
+        setResults(resultsData || []);
         setQuiz(quizData);
       })
       .catch((err) => {
@@ -42,7 +37,7 @@ export default function QuizResults() {
   };
 
   return (
-    <div className="container" style={{ padding: "40px 24px 80px", maxWidth: "1080px" }}>
+    <div className="container" style={{ marginTop: "24px" }}>
       {/* Banner */}
       <div
         style={{
@@ -50,37 +45,30 @@ export default function QuizResults() {
           alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
-          gap: "20px",
-          marginBottom: "32px"
+          gap: "16px",
+          marginBottom: "24px",
         }}
       >
         <div>
-          <div className="badge-modern" style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginBottom: "12px" }}>
-            <Sparkles size={14} /> Candidate Submissions
+          <div className="hero-pill-badge" style={{ marginBottom: "8px" }}>
+            <Sparkles size={13} />
+            <span>Submission Records</span>
           </div>
-          <h1 style={{ fontSize: "32px", fontWeight: 800, color: "var(--text-heading)", marginBottom: "6px" }}>
+          <h1 style={{ fontSize: "28px", color: "var(--text)", marginBottom: "4px" }}>
             {quiz?.title || "Quiz Submissions"}
           </h1>
-          <p style={{ color: "var(--text-muted)", fontSize: "15px" }}>
-            Inspect candidate scores, time taken, and answer breakdowns for this assessment.
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
+            Review candidate scores, accuracy, and detailed response breakdowns.
           </p>
         </div>
 
-        <div style={{ display: "flex", gap: "12px" }}>
-          <Link
-            to={`/leaderboard/${quizId}`}
-            className="btn-primary"
-            style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
-          >
-            <Trophy size={18} />
+        <div style={{ display: "flex", gap: "10px" }}>
+          <Link to={`/leaderboard/${quizId}`} className="btn-primary">
+            <Trophy size={16} />
             View Leaderboard
           </Link>
-          <Link
-            to="/admin/quizzes"
-            className="btn-secondary"
-            style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
-          >
-            <ArrowLeft size={18} />
+          <Link to="/admin/quizzes" className="btn-secondary">
+            <ArrowLeft size={16} />
             Back to Quizzes
           </Link>
         </div>
@@ -89,41 +77,41 @@ export default function QuizResults() {
       {loading && (
         <div className="state-msg-container">
           <div className="spinner" />
-          <p className="state-msg">Loading participant submissions…</p>
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>Loading participant submissions…</p>
         </div>
       )}
 
-      {error && <div className="alert-box alert-error" style={{ marginBottom: "20px" }}>{error}</div>}
+      {error && <div className="alert-box alert-error" style={{ marginBottom: "16px" }}>{error}</div>}
 
       {!loading && results.length === 0 && (
-        <div className="card-modern" style={{ padding: "64px 32px", textAlign: "center" }}>
-          <Users size={48} color="var(--primary)" style={{ opacity: 0.35, marginBottom: "16px" }} />
-          <h3 style={{ fontSize: "18px", color: "var(--text-heading)", marginBottom: "8px" }}>
-            No Candidates Have Submitted Yet
+        <div className="card-modern" style={{ padding: "48px 24px", textAlign: "center" }}>
+          <Users size={36} color="var(--primary)" style={{ opacity: 0.4, marginBottom: "12px" }} />
+          <h3 style={{ fontSize: "17px", color: "var(--text)", marginBottom: "6px" }}>
+            No Submissions Yet
           </h3>
           <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
-            Distribute the quiz access code <span className="code-pill">{quiz?.quizCode}</span> to your students to start collecting assessments.
+            Share the quiz with students to start collecting candidate assessments.
           </p>
         </div>
       )}
 
       {!loading && results.length > 0 && (
-        <div className="card-modern">
+        <div className="card-modern" style={{ padding: 0, overflow: "hidden" }}>
           <div
             style={{
-              padding: "20px 24px",
+              padding: "16px 20px",
               borderBottom: "1px solid var(--border)",
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between"
+              justifyContent: "space-between",
             }}
           >
-            <h3 style={{ fontSize: "18px", fontWeight: 800, color: "var(--text-heading)" }}>
+            <h3 style={{ fontSize: "17px", color: "var(--text)" }}>
               Total Submissions: {results.length}
             </h3>
-            <span style={{ fontSize: "13px", color: "var(--text-muted)", fontWeight: 600 }}>
-              Code: <span className="code-pill">{quiz?.quizCode}</span>
-            </span>
+            {quiz?.quizCode && (
+              <span className="code-pill">Code: {quiz.quizCode}</span>
+            )}
           </div>
 
           <div className="table-responsive">
@@ -135,7 +123,7 @@ export default function QuizResults() {
                   <th>Score</th>
                   <th>Accuracy</th>
                   <th>Correct / Total</th>
-                  <th>Duration</th>
+                  <th>Time Taken</th>
                   <th>Submitted At</th>
                   <th style={{ textAlign: "right" }}>Actions</th>
                 </tr>
@@ -144,33 +132,41 @@ export default function QuizResults() {
                 {results.map((r) => (
                   <tr key={r._id}>
                     <td>
-                      <strong style={{ color: "var(--text-heading)", fontSize: "14px" }}>
+                      <strong style={{ color: "var(--text)" }}>
                         {r.user?.name || "Candidate"}
                       </strong>
                     </td>
                     <td style={{ color: "var(--text-muted)", fontSize: "13px" }}>{r.user?.email || "—"}</td>
                     <td>
-                      <span style={{ fontWeight: 700, color: "var(--text-heading)" }}>{r.score}</span>
+                      <span style={{ fontWeight: 600 }}>{r.score}</span>
                       <span style={{ color: "var(--text-muted)", fontSize: "12px" }}> / {r.totalMarks}</span>
                     </td>
                     <td>
                       <span
-                        className={`status-pill ${
-                          r.percentage >= 80
-                            ? "status-success"
-                            : r.percentage >= 50
-                            ? "status-warning"
-                            : "status-danger"
-                        }`}
+                        className="badge-tag"
+                        style={{
+                          background:
+                            r.percentage >= 80
+                              ? "rgba(63, 125, 88, 0.12)"
+                              : r.percentage >= 50
+                              ? "rgba(183, 121, 31, 0.12)"
+                              : "rgba(178, 58, 58, 0.12)",
+                          color:
+                            r.percentage >= 80
+                              ? "var(--easy)"
+                              : r.percentage >= 50
+                              ? "var(--medium)"
+                              : "var(--hard)",
+                        }}
                       >
                         {r.percentage}%
                       </span>
                     </td>
-                    <td style={{ color: "var(--text-main)", fontSize: "13px" }}>
+                    <td style={{ color: "var(--text)", fontSize: "13px" }}>
                       {r.correctAnswers} / {r.totalQuestions}
                     </td>
                     <td style={{ color: "var(--text-muted)", fontSize: "13px" }}>
-                      ⏱️ {formatTime(r.timeTaken)}
+                      {formatTime(r.timeTaken)}
                     </td>
                     <td style={{ color: "var(--text-muted)", fontSize: "13px" }}>
                       {new Date(r.submittedAt).toLocaleString()}
@@ -178,8 +174,7 @@ export default function QuizResults() {
                     <td style={{ textAlign: "right" }}>
                       <Link
                         to={`/result/${r._id}`}
-                        className="btn-secondary"
-                        style={{ padding: "6px 12px", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                        className="btn-secondary-sm"
                       >
                         <FileText size={12} /> Review
                       </Link>

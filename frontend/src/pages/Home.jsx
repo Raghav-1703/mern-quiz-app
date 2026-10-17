@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchQuizzes, joinQuizByCode } from "../services/quizService.js";
 import { useAuth } from "../context/AuthContext.jsx";
-import { Sparkles, Key, Clock, HelpCircle, Trophy, ArrowRight, BookOpen, Brain, Zap, CheckCircle2, Shield, Search } from "lucide-react";
+import { Sparkles, Key, Clock, HelpCircle, Trophy, Zap, Shield, Search } from "lucide-react";
 
 export default function Home() {
   const [quizzes, setQuizzes] = useState([]);
@@ -13,7 +13,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -61,8 +61,7 @@ export default function Home() {
     const matchesCategory = selectedCategory === "All" || q.category === selectedCategory;
     const matchesSearch =
       q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      q.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      q.quizCode.toLowerCase().includes(searchTerm.toLowerCase());
+      q.description?.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -71,23 +70,24 @@ export default function Home() {
       {/* Hero Section */}
       <section className="explore-hero">
         <div className="hero-pill-badge">
-          <Sparkles size={14} />
+          <Sparkles size={13} />
           <span>Interactive Testing & Quiz Platform</span>
         </div>
 
         <h1 className="explore-title">
-          Sharpen Your Skills With <span className="gradient-text">Timed Knowledge Tests</span>
+          Sharpen Your Skills With{" "}
+          <span className="headline-highlight">Timed Knowledge Tests</span>
         </h1>
 
         <p className="explore-sub">
-          Join tests with an instructor code or choose from our curated question banks.
-          Beat the clock, submit securely, and conquer the leaderboard!
+          Join private assessments with an instructor code or choose from our curated question banks.
+          Beat the clock, submit securely, and track your ranking!
         </p>
 
         {/* Hero Quick Join with Code Card */}
         <div className="hero-code-box">
           <div className="code-box-header">
-            <Key size={18} color="var(--primary)" />
+            <Key size={16} color="var(--primary)" />
             <span>Have an Access Code? Enter it below:</span>
           </div>
 
@@ -104,12 +104,12 @@ export default function Home() {
               maxLength={12}
             />
             <button type="submit" className="btn-primary" disabled={joining}>
-              {joining ? "Validating…" : "Join Quiz →"}
+              {joining ? "Validating…" : "Join Quiz"}
             </button>
           </form>
 
           {joinError && (
-            <div className="alert-box alert-error" style={{ marginTop: "14px", textAlign: "left" }}>
+            <div className="alert-box alert-error" style={{ marginTop: "12px", textAlign: "left" }}>
               <span>{joinError}</span>
             </div>
           )}
@@ -117,72 +117,72 @@ export default function Home() {
       </section>
 
       {/* Feature Highlights Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "20px", marginBottom: "48px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px", marginBottom: "40px" }}>
         <div className="stat-box">
-          <div className="stat-icon-wrapper" style={{ background: "#ede9fe", color: "var(--primary)" }}>
-            <Zap size={24} />
+          <div className="stat-icon-wrapper">
+            <Zap size={20} />
           </div>
           <div className="stat-info-col">
-            <h4 style={{ fontSize: "16px", color: "var(--text-heading)" }}>Server-Side Grading</h4>
-            <span className="stat-label-text">Zero answers sent to browser beforehand</span>
+            <h4 style={{ fontSize: "15px", color: "var(--text)" }}>Server-Side Grading</h4>
+            <span className="stat-label-text">Zero answers leaked to browser beforehand</span>
           </div>
         </div>
 
         <div className="stat-box">
-          <div className="stat-icon-wrapper" style={{ background: "#dcfce7", color: "#16a34a" }}>
-            <Clock size={24} />
+          <div className="stat-icon-wrapper">
+            <Clock size={20} />
           </div>
           <div className="stat-info-col">
-            <h4 style={{ fontSize: "16px", color: "var(--text-heading)" }}>Real-Time Timers</h4>
+            <h4 style={{ fontSize: "15px", color: "var(--text)" }}>Real-Time Timers</h4>
             <span className="stat-label-text">Anti-cheat server countdown & auto-submit</span>
           </div>
         </div>
 
         <div className="stat-box">
-          <div className="stat-icon-wrapper" style={{ background: "#fef3c7", color: "#d97706" }}>
-            <Trophy size={24} />
+          <div className="stat-icon-wrapper stat-icon-trophy">
+            <Trophy size={20} />
           </div>
           <div className="stat-info-col">
-            <h4 style={{ fontSize: "16px", color: "var(--text-heading)" }}>Live Leaderboards</h4>
+            <h4 style={{ fontSize: "15px", color: "var(--text)" }}>Live Leaderboards</h4>
             <span className="stat-label-text">Score & completion-time tiebreaker rankings</span>
           </div>
         </div>
 
         <div className="stat-box">
-          <div className="stat-icon-wrapper" style={{ background: "#e0f2fe", color: "#0284c7" }}>
-            <Brain size={24} />
+          <div className="stat-icon-wrapper">
+            <Shield size={20} />
           </div>
           <div className="stat-info-col">
-            <h4 style={{ fontSize: "16px", color: "var(--text-heading)" }}>In-Depth Explanations</h4>
-            <span className="stat-label-text">Full review breakdown for every question</span>
+            <h4 style={{ fontSize: "15px", color: "var(--text)" }}>Access Controls</h4>
+            <span className="stat-label-text">Secure private codes for private quizzes</span>
           </div>
         </div>
       </div>
 
       {/* Search & Filter Controls */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px", marginBottom: "24px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px", marginBottom: "20px" }}>
         <div>
-          <h2 style={{ fontSize: "24px", color: "var(--text-heading)" }}>Available Quizzes</h2>
-          <p style={{ fontSize: "14px", color: "var(--text-muted)" }}>Explore tests created by verified educators</p>
+          <h2 style={{ fontSize: "22px", color: "var(--text)" }}>Available Public Quizzes</h2>
+          <p style={{ fontSize: "13px", color: "var(--text-muted)" }}>Explore currently open assessments</p>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", width: "100%", maxWidth: "340px" }}>
-          <div className="input-with-icon" style={{ width: "100%" }}>
-            <Search className="input-icon-left" size={16} />
+        <div style={{ width: "100%", maxWidth: "300px" }}>
+          <div className="input-with-icon">
+            <Search className="input-icon-left" size={15} />
             <input
               type="text"
-              placeholder="Search by title or code..."
+              placeholder="Search by title..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ paddingLeft: "38px", height: "42px", borderRadius: "var(--radius-full)" }}
+              className="search-input-box"
             />
           </div>
         </div>
       </div>
 
-      {/* Category Pills */}
+      {/* Category Filter Chips */}
       {categories.length > 1 && (
-        <div className="filter-tabs-row" style={{ justifyContent: "flex-start" }}>
+        <div className="filter-tabs-row">
           {categories.map((cat) => (
             <button
               key={cat}
@@ -200,30 +200,25 @@ export default function Home() {
       {status === "loading" && (
         <div className="state-msg-container">
           <div className="spinner" />
-          <p style={{ color: "var(--text-muted)", fontSize: "15px", fontWeight: 500 }}>Loading quizzes…</p>
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>Loading quizzes…</p>
         </div>
       )}
 
       {/* Error State */}
       {status === "error" && (
-        <div className="alert-box alert-error" style={{ marginBottom: "28px" }}>
+        <div className="alert-box alert-error" style={{ marginBottom: "24px" }}>
           <span>Couldn't connect to server. Ensure the backend API is running on port 5000.</span>
         </div>
       )}
 
-      {/* Empty State */}
+      {/* Clean Empty State */}
       {status === "ready" && filteredQuizzes.length === 0 && (
         <div className="card-modern" style={{ textAlign: "center", padding: "48px 24px" }}>
-          <div style={{ fontSize: "36px", marginBottom: "12px" }}>🔍</div>
-          <h3 style={{ fontSize: "18px", marginBottom: "6px" }}>No quizzes found</h3>
+          <div style={{ fontSize: "32px", marginBottom: "12px" }}>🔍</div>
+          <h3 style={{ fontSize: "18px", marginBottom: "6px" }}>No quizzes available yet</h3>
           <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "20px" }}>
-            {searchTerm ? "Try modifying your search filter." : "No quizzes are available right now."}
+            {searchTerm ? "Try modifying your search filter." : "There are currently no public active quizzes. Administrators can author new quizzes."}
           </p>
-          {isAdmin && (
-            <Link to="/admin/create-quiz" className="btn-primary">
-              Create the First Quiz
-            </Link>
-          )}
         </div>
       )}
 
@@ -243,30 +238,21 @@ export default function Home() {
 
             <div className="quiz-meta-row">
               <span className="meta-item">
-                <Clock size={14} color="var(--primary)" />
+                <Clock size={13} color="var(--primary)" />
                 {quiz.duration} min duration
               </span>
               <span className="meta-item">
-                <HelpCircle size={14} color="var(--primary)" />
+                <HelpCircle size={13} color="var(--primary)" />
                 {quiz.questionCount} questions
               </span>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-              <span className="quiz-code-badge">CODE: {quiz.quizCode}</span>
-              {quiz.createdBy && (
-                <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-                  By: {quiz.createdBy.name || "Educator"}
-                </span>
-              )}
-            </div>
-
             <div className="quiz-card-actions">
-              <Link to={`/quiz/${quiz._id}`} className="btn-primary" style={{ padding: "10px 16px", fontSize: "14px" }}>
-                Start Quiz →
+              <Link to={`/quiz/${quiz._id}`} className="btn-primary" style={{ flex: 1, padding: "8px 14px", fontSize: "13px" }}>
+                Start Quiz
               </Link>
-              <Link to={`/leaderboard/${quiz._id}`} className="btn-secondary" style={{ padding: "10px 14px" }} title="View Leaderboard">
-                <Trophy size={16} />
+              <Link to={`/leaderboard/${quiz._id}`} className="btn-secondary" style={{ padding: "8px 12px" }} title="View Leaderboard">
+                <Trophy size={15} />
               </Link>
             </div>
           </div>

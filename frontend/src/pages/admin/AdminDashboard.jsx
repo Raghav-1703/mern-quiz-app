@@ -9,7 +9,6 @@ import {
   Copy,
   Check,
   Trophy,
-  ExternalLink,
   ChevronRight,
   ClipboardList
 } from "lucide-react";
@@ -25,7 +24,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchAdminQuizzes()
-      .then((data) => setQuizzes(data))
+      .then((data) => setQuizzes(data || []))
       .catch((err) => {
         console.error("Failed to load admin quizzes:", err);
         setError("Unable to load administrative overview.");
@@ -44,7 +43,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="container" style={{ padding: "40px 24px 80px", maxWidth: "1080px" }}>
+    <div className="container" style={{ marginTop: "24px" }}>
       {/* Top Banner */}
       <div
         style={{
@@ -52,111 +51,107 @@ export default function AdminDashboard() {
           alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
-          gap: "20px",
-          marginBottom: "32px"
+          gap: "16px",
+          marginBottom: "24px",
         }}
       >
         <div>
-          <div className="badge-modern" style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginBottom: "12px" }}>
-            <Sparkles size={14} /> Educator Studio & Management
+          <div className="hero-pill-badge" style={{ marginBottom: "8px" }}>
+            <Sparkles size={13} />
+            <span>Admin & Educator Portal</span>
           </div>
-          <h1 style={{ fontSize: "32px", fontWeight: 800, color: "var(--text-heading)", marginBottom: "6px" }}>
+          <h1 style={{ fontSize: "28px", color: "var(--text)", marginBottom: "4px" }}>
             Educator Dashboard
           </h1>
-          <p style={{ color: "var(--text-muted)", fontSize: "15px" }}>
-            Create structured quizzes, distribute access codes to candidates, and monitor real-time submissions.
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
+            Author quizzes, set private access codes, configure availability deadlines, and inspect submissions.
           </p>
         </div>
 
-        <div style={{ display: "flex", gap: "12px" }}>
-          <Link
-            to="/admin/create-quiz"
-            className="btn-primary"
-            style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
-          >
-            <Plus size={18} />
-            Create New Quiz
-          </Link>
-        </div>
+        <Link to="/admin/create-quiz" className="btn-primary">
+          <Plus size={16} />
+          Create New Quiz
+        </Link>
       </div>
 
       {/* Metrics Row */}
-      <div className="stat-grid" style={{ marginBottom: "32px" }}>
+      <div className="stats-cards-row">
         <div className="stat-box">
-          <div className="stat-icon-wrap" style={{ background: "var(--primary-light)", color: "var(--primary)" }}>
-            <BookOpen size={24} />
+          <div className="stat-icon-wrapper">
+            <BookOpen size={20} />
           </div>
-          <div className="stat-number">{totalQuizzes}</div>
-          <div className="stat-title">Quizzes Published</div>
+          <div className="stat-info-col">
+            <span className="stat-value">{totalQuizzes}</span>
+            <span className="stat-label-text">Quizzes Authored</span>
+          </div>
         </div>
 
         <div className="stat-box">
-          <div className="stat-icon-wrap" style={{ background: "var(--amber-light)", color: "#b45309" }}>
-            <Users size={24} />
+          <div className="stat-icon-wrapper">
+            <Users size={20} />
           </div>
-          <div className="stat-number">{totalParticipants}</div>
-          <div className="stat-title">Total Submissions</div>
+          <div className="stat-info-col">
+            <span className="stat-value">{totalParticipants}</span>
+            <span className="stat-label-text">Total Submissions</span>
+          </div>
         </div>
 
         <div className="stat-box">
-          <div className="stat-icon-wrap" style={{ background: "var(--green-light)", color: "#15803d" }}>
-            <HelpCircle size={24} />
+          <div className="stat-icon-wrapper">
+            <HelpCircle size={20} />
           </div>
-          <div className="stat-number">{totalQuestions}</div>
-          <div className="stat-title">Questions Authored</div>
+          <div className="stat-info-col">
+            <span className="stat-value">{totalQuestions}</span>
+            <span className="stat-label-text">Questions Created</span>
+          </div>
         </div>
       </div>
 
-      {/* Quizzes Management Card */}
-      <div className="card-modern">
+      {/* Quizzes Table Card */}
+      <div className="card-modern" style={{ padding: 0, overflow: "hidden" }}>
         <div
           style={{
-            padding: "20px 24px",
+            padding: "16px 20px",
             borderBottom: "1px solid var(--border)",
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between"
+            justifyContent: "space-between",
           }}
         >
           <div>
-            <h3 style={{ fontSize: "18px", fontWeight: 800, color: "var(--text-heading)" }}>
-              Authored Quizzes & Active Codes
+            <h3 style={{ fontSize: "17px", color: "var(--text)" }}>
+              Authored Quizzes
             </h3>
             <p style={{ fontSize: "13px", color: "var(--text-muted)", marginTop: "2px" }}>
-              Share access codes with your students to permit exam entry.
+              Manage visibility, access codes, and monitor participant attempts.
             </p>
           </div>
 
-          <Link
-            to="/admin/quizzes"
-            className="btn-secondary"
-            style={{ padding: "6px 14px", fontSize: "13px", display: "inline-flex", alignItems: "center", gap: "6px" }}
-          >
-            Manage All <ChevronRight size={14} />
+          <Link to="/admin/quizzes" className="btn-secondary-sm">
+            Manage All <ChevronRight size={13} />
           </Link>
         </div>
 
         {loading && (
           <div className="state-msg-container">
             <div className="spinner" />
-            <p className="state-msg">Loading your created quizzes…</p>
+            <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>Loading your created quizzes…</p>
           </div>
         )}
 
-        {error && <div className="alert-box alert-error" style={{ margin: "20px" }}>{error}</div>}
+        {error && <div className="alert-box alert-error" style={{ margin: "16px" }}>{error}</div>}
 
         {!loading && quizzes.length === 0 && (
-          <div style={{ padding: "64px 32px", textAlign: "center" }}>
-            <ClipboardList size={48} color="var(--primary)" style={{ opacity: 0.35, marginBottom: "16px" }} />
-            <h3 style={{ fontSize: "18px", color: "var(--text-heading)", marginBottom: "8px" }}>
+          <div style={{ padding: "48px 24px", textAlign: "center" }}>
+            <ClipboardList size={36} color="var(--primary)" style={{ opacity: 0.4, marginBottom: "12px" }} />
+            <h3 style={{ fontSize: "17px", color: "var(--text)", marginBottom: "6px" }}>
               No Quizzes Authored Yet
             </h3>
-            <p style={{ color: "var(--text-muted)", fontSize: "14px", marginBottom: "24px" }}>
+            <p style={{ color: "var(--text-muted)", fontSize: "14px", marginBottom: "20px" }}>
               Get started by drafting your first quiz with custom questions and timer settings.
             </p>
-            <Link to="/admin/create-quiz" className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-              <Plus size={18} />
-              Create Your First Quiz Now
+            <Link to="/admin/create-quiz" className="btn-primary">
+              <Plus size={16} /> Create Your First Quiz
             </Link>
           </div>
         )}
@@ -166,10 +161,11 @@ export default function AdminDashboard() {
             <table className="modern-table">
               <thead>
                 <tr>
-                  <th>Quiz Title & Category</th>
+                  <th>Title & Category</th>
+                  <th>Visibility</th>
+                  <th>Status</th>
                   <th>Access Code</th>
                   <th>Duration</th>
-                  <th>Questions</th>
                   <th>Submissions</th>
                   <th>Avg. Score</th>
                   <th style={{ textAlign: "right" }}>Actions</th>
@@ -179,11 +175,21 @@ export default function AdminDashboard() {
                 {quizzes.map((q) => (
                   <tr key={q._id}>
                     <td>
-                      <strong style={{ color: "var(--text-heading)", fontSize: "15px", display: "block" }}>
+                      <strong style={{ color: "var(--text)", display: "block" }}>
                         {q.title}
                       </strong>
-                      <span style={{ fontSize: "12px", color: "var(--text-muted)", display: "inline-block", marginTop: "2px" }}>
-                        {q.category} • <span style={{ textTransform: "capitalize" }}>{q.difficulty}</span>
+                      <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+                        {q.category} &bull; <span style={{ textTransform: "capitalize" }}>{q.difficulty}</span>
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`visibility-pill visibility-${q.visibility}`}>
+                        {q.visibility === "private" ? "Private" : "Public"}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`status-pill status-${q.status}`}>
+                        {q.status}
                       </span>
                     </td>
                     <td>
@@ -196,66 +202,57 @@ export default function AdminDashboard() {
                             background: "none",
                             border: "none",
                             cursor: "pointer",
-                            padding: "4px",
+                            padding: "2px",
                             display: "flex",
                             alignItems: "center",
-                            color: copiedCode === q.quizCode ? "var(--green)" : "var(--text-dim)"
+                            color: copiedCode === q.quizCode ? "var(--easy)" : "var(--text-muted)",
                           }}
                           title="Copy quiz access code"
                         >
-                          {copiedCode === q.quizCode ? <Check size={16} /> : <Copy size={16} />}
+                          {copiedCode === q.quizCode ? <Check size={14} /> : <Copy size={14} />}
                         </button>
                       </div>
                     </td>
-                    <td style={{ color: "var(--text-muted)", fontSize: "14px" }}>{q.duration} min</td>
-                    <td style={{ fontWeight: 600, color: "var(--text-heading)" }}>{q.questionCount}</td>
+                    <td style={{ color: "var(--text-muted)", fontSize: "13px" }}>{q.duration} min</td>
                     <td>
-                      <span
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "4px",
-                          padding: "3px 10px",
-                          borderRadius: "var(--radius-full)",
-                          fontSize: "12px",
-                          fontWeight: 700,
-                          background: "var(--primary-light)",
-                          color: "var(--primary)"
-                        }}
-                      >
-                        <Users size={12} /> {q.participantCount}
-                      </span>
+                      <span style={{ fontWeight: 600 }}>{q.participantCount}</span>
                     </td>
                     <td>
                       <span
-                        className={`status-pill ${
-                          q.avgScore >= 75
-                            ? "status-success"
-                            : q.avgScore >= 50
-                            ? "status-warning"
-                            : "status-danger"
-                        }`}
+                        className="badge-tag"
+                        style={{
+                          background:
+                            q.avgScore >= 75
+                              ? "rgba(63, 125, 88, 0.12)"
+                              : q.avgScore >= 50
+                              ? "rgba(183, 121, 31, 0.12)"
+                              : "rgba(178, 58, 58, 0.12)",
+                          color:
+                            q.avgScore >= 75
+                              ? "var(--easy)"
+                              : q.avgScore >= 50
+                              ? "var(--medium)"
+                              : "var(--hard)",
+                        }}
                       >
                         {q.avgScore}%
                       </span>
                     </td>
                     <td style={{ textAlign: "right" }}>
-                      <div style={{ display: "inline-flex", gap: "8px" }}>
+                      <div style={{ display: "inline-flex", gap: "6px" }}>
                         <Link
                           to={`/admin/results/${q._id}`}
-                          className="btn-secondary"
-                          style={{ padding: "6px 12px", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "4px" }}
-                          title="View all candidate submissions"
+                          className="btn-secondary-sm"
+                          title="View all submissions"
                         >
                           Submissions
                         </Link>
                         <Link
                           to={`/leaderboard/${q._id}`}
-                          className="btn-secondary"
-                          style={{ padding: "6px 12px", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                          className="btn-secondary-sm"
                           title="View leaderboard"
                         >
-                          <Trophy size={12} /> Rank
+                          <Trophy size={12} />
                         </Link>
                       </div>
                     </td>

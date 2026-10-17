@@ -1,18 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  User,
   Mail,
   Shield,
   Crown,
   BookOpen,
   Award,
   CheckCircle2,
-  Clock,
-  ArrowRight,
   Sparkles,
   Trophy,
-  ExternalLink,
   LayoutDashboard
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.jsx";
@@ -26,7 +22,7 @@ export default function Profile() {
 
   useEffect(() => {
     fetchMyResults()
-      .then((data) => setResults(data))
+      .then((data) => setResults(data || []))
       .catch((err) => console.error("Error loading profile history:", err))
       .finally(() => setLoading(false));
   }, []);
@@ -54,17 +50,18 @@ export default function Profile() {
   };
 
   return (
-    <div className="container" style={{ padding: "40px 24px 80px", maxWidth: "1000px" }}>
+    <div className="container" style={{ maxWidth: "860px", marginTop: "24px" }}>
       {/* Header */}
-      <div style={{ marginBottom: "28px" }}>
-        <div className="badge-modern" style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginBottom: "12px" }}>
-          <Sparkles size={14} /> Account & Learning Profile
+      <div style={{ marginBottom: "24px" }}>
+        <div className="hero-pill-badge" style={{ marginBottom: "8px" }}>
+          <Sparkles size={13} />
+          <span>Account & Profile</span>
         </div>
-        <h1 style={{ fontSize: "32px", fontWeight: 800, color: "var(--text-heading)", marginBottom: "6px" }}>
+        <h1 style={{ fontSize: "28px", color: "var(--text)", marginBottom: "4px" }}>
           Student Profile
         </h1>
-        <p style={{ color: "var(--text-muted)", fontSize: "15px" }}>
-          Track your overall performance trajectory and examine past assessment submissions.
+        <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
+          Manage your account information and examine past assessment submissions.
         </p>
       </div>
 
@@ -72,67 +69,47 @@ export default function Profile() {
       <div
         className="card-modern"
         style={{
-          padding: "36px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
-          gap: "24px",
-          marginBottom: "32px"
+          gap: "20px",
+          marginBottom: "24px",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
-          {/* Avatar initial with gradient */}
+        <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
+          {/* Avatar initial */}
           <div
             style={{
-              width: "72px",
-              height: "72px",
-              borderRadius: "50%",
-              background: "var(--primary-gradient)",
-              color: "#ffffff",
+              width: "56px",
+              height: "56px",
+              borderRadius: "var(--radius-btn)",
+              background: "var(--primary)",
+              color: "#FFFFFF",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "30px",
-              fontWeight: 800,
-              boxShadow: "0 10px 20px var(--primary-glow)",
-              flexShrink: 0
+              fontSize: "24px",
+              fontWeight: 700,
+              fontFamily: "var(--font-heading)",
+              flexShrink: 0,
             }}
           >
             {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
           </div>
 
           <div>
-            <h2 style={{ fontSize: "24px", fontWeight: 800, color: "var(--text-heading)", marginBottom: "4px" }}>
+            <h2 style={{ fontSize: "20px", color: "var(--text)", marginBottom: "2px" }}>
               {user?.name || "Participant"}
             </h2>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--text-muted)", fontSize: "14px", marginBottom: "12px" }}>
-              <Mail size={16} />
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text-muted)", fontSize: "13px", marginBottom: "8px" }}>
+              <Mail size={14} />
               <span>{user?.email}</span>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  padding: "4px 12px",
-                  borderRadius: "var(--radius-full)",
-                  fontSize: "12px",
-                  fontWeight: 800,
-                  textTransform: "uppercase",
-                  background: user?.role === "admin" ? "var(--primary-light)" : "var(--green-light)",
-                  color: user?.role === "admin" ? "var(--primary)" : "#15803d",
-                  border: `1px solid ${user?.role === "admin" ? "var(--border-purple)" : "#86efac"}`
-                }}
-              >
-                {user?.role === "admin" ? <Crown size={14} /> : <Shield size={14} />}
-                {user?.role === "admin" ? "Administrator" : "Student Candidate"}
-              </span>
-
-              <span style={{ fontSize: "13px", color: "var(--text-dim)" }}>
-                Active Session
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+              <span className={`role-pill ${user?.role === "admin" ? "role-admin" : "role-user"}`}>
+                {user?.role === "admin" ? "Administrator" : "Student Participant"}
               </span>
             </div>
           </div>
@@ -146,68 +123,69 @@ export default function Profile() {
               className="btn-secondary"
               onClick={handleUpgrade}
               disabled={upgrading}
-              style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
             >
-              <Crown size={16} color="var(--primary)" />
-              {upgrading ? "Upgrading…" : "Upgrade to Educator"}
+              <Crown size={15} color="var(--primary)" />
+              {upgrading ? "Upgrading…" : "Upgrade to Admin"}
             </button>
           ) : (
-            <Link
-              to="/admin/dashboard"
-              className="btn-primary"
-              style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
-            >
-              <LayoutDashboard size={16} />
-              Educator Dashboard
+            <Link to="/admin/dashboard" className="btn-primary">
+              <LayoutDashboard size={15} />
+              Admin Portal
             </Link>
           )}
         </div>
       </div>
 
       {/* Aggregate Stats */}
-      <div className="stat-grid" style={{ marginBottom: "32px" }}>
+      <div className="stats-cards-row">
         <div className="stat-box">
-          <div className="stat-icon-wrap" style={{ background: "var(--primary-light)", color: "var(--primary)" }}>
-            <BookOpen size={24} />
+          <div className="stat-icon-wrapper">
+            <BookOpen size={20} />
           </div>
-          <div className="stat-number">{totalQuizzes}</div>
-          <div className="stat-title">Quizzes Completed</div>
+          <div className="stat-info-col">
+            <div className="stat-value">{totalQuizzes}</div>
+            <div className="stat-label-text">Quizzes Completed</div>
+          </div>
         </div>
 
         <div className="stat-box">
-          <div className="stat-icon-wrap" style={{ background: "var(--amber-light)", color: "#b45309" }}>
-            <Award size={24} />
+          <div className="stat-icon-wrapper">
+            <Award size={20} />
           </div>
-          <div className="stat-number">{avgScore}%</div>
-          <div className="stat-title">Average Score</div>
+          <div className="stat-info-col">
+            <div className="stat-value">{avgScore}%</div>
+            <div className="stat-label-text">Average Score</div>
+          </div>
         </div>
 
         <div className="stat-box">
-          <div className="stat-icon-wrap" style={{ background: "var(--green-light)", color: "#15803d" }}>
-            <CheckCircle2 size={24} />
+          <div className="stat-icon-wrapper">
+            <CheckCircle2 size={20} />
           </div>
-          <div className="stat-number">
-            {totalCorrect} <span style={{ fontSize: "16px", color: "var(--text-muted)" }}>/ {totalQuestions}</span>
+          <div className="stat-info-col">
+            <div className="stat-value">
+              {totalCorrect} <span style={{ fontSize: "15px", color: "var(--text-muted)", fontWeight: 400 }}>/ {totalQuestions}</span>
+            </div>
+            <div className="stat-label-text">Questions Mastered</div>
           </div>
-          <div className="stat-title">Questions Mastered</div>
         </div>
       </div>
 
       {/* Attempt History Table Card */}
-      <div className="card-modern">
+      <div className="card-modern" style={{ padding: 0, overflow: "hidden" }}>
         <div
           style={{
-            padding: "20px 24px",
+            padding: "16px 20px",
             borderBottom: "1px solid var(--border)",
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between"
+            justifyContent: "space-between",
           }}
         >
-          <h3 style={{ fontSize: "18px", fontWeight: 800, color: "var(--text-heading)" }}>
+          <h3 style={{ fontSize: "17px", color: "var(--text)" }}>
             Complete Assessment History
           </h3>
-          <span style={{ fontSize: "13px", color: "var(--text-muted)", fontWeight: 600 }}>
+          <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
             {results.length} Attempt{results.length === 1 ? "" : "s"}
           </span>
         </div>
@@ -215,15 +193,15 @@ export default function Profile() {
         {loading ? (
           <div className="state-msg-container">
             <div className="spinner" />
-            <p className="state-msg">Loading history records…</p>
+            <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>Loading history…</p>
           </div>
         ) : results.length === 0 ? (
-          <div style={{ padding: "64px 32px", textAlign: "center" }}>
-            <p style={{ color: "var(--text-muted)", fontSize: "15px", marginBottom: "20px" }}>
-              You haven't completed any quizzes yet.
+          <div style={{ padding: "48px 24px", textAlign: "center" }}>
+            <p style={{ color: "var(--text-muted)", fontSize: "14px", marginBottom: "16px" }}>
+              No quiz attempts recorded yet.
             </p>
-            <Link to="/join-quiz" className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
-              Join a Quiz Now <ArrowRight size={16} />
+            <Link to="/join-quiz" className="btn-primary">
+              Join a Quiz Now
             </Link>
           </div>
         ) : (
@@ -232,7 +210,6 @@ export default function Profile() {
               <thead>
                 <tr>
                   <th>Quiz Title</th>
-                  <th>Access Code</th>
                   <th>Score</th>
                   <th>Accuracy</th>
                   <th>Duration</th>
@@ -244,24 +221,29 @@ export default function Profile() {
                 {results.map((r) => (
                   <tr key={r._id}>
                     <td>
-                      <strong style={{ color: "var(--text-heading)" }}>{r.quiz?.title || "Quiz Evaluation"}</strong>
+                      <strong style={{ color: "var(--text)" }}>{r.quiz?.title || "Quiz Evaluation"}</strong>
                     </td>
                     <td>
-                      <span className="code-pill">{r.quiz?.quizCode || "—"}</span>
-                    </td>
-                    <td>
-                      <span style={{ fontWeight: 700, color: "var(--text-heading)" }}>{r.score}</span>
+                      <span style={{ fontWeight: 600 }}>{r.score}</span>
                       <span style={{ color: "var(--text-muted)", fontSize: "12px" }}> / {r.totalMarks}</span>
                     </td>
                     <td>
                       <span
-                        className={`status-pill ${
-                          r.percentage >= 80
-                            ? "status-success"
-                            : r.percentage >= 50
-                            ? "status-warning"
-                            : "status-danger"
-                        }`}
+                        className="badge-tag"
+                        style={{
+                          background:
+                            r.percentage >= 80
+                              ? "rgba(63, 125, 88, 0.12)"
+                              : r.percentage >= 50
+                              ? "rgba(183, 121, 31, 0.12)"
+                              : "rgba(178, 58, 58, 0.12)",
+                          color:
+                            r.percentage >= 80
+                              ? "var(--easy)"
+                              : r.percentage >= 50
+                              ? "var(--medium)"
+                              : "var(--hard)",
+                        }}
                       >
                         {r.percentage}%
                       </span>
@@ -273,21 +255,20 @@ export default function Profile() {
                       {new Date(r.submittedAt).toLocaleDateString()}
                     </td>
                     <td style={{ textAlign: "right" }}>
-                      <div style={{ display: "inline-flex", gap: "8px" }}>
+                      <div style={{ display: "inline-flex", gap: "6px" }}>
                         <Link
                           to={`/result/${r._id}`}
-                          className="btn-secondary"
-                          style={{ padding: "6px 12px", fontSize: "12px" }}
+                          className="btn-secondary-sm"
                         >
                           Review
                         </Link>
                         {r.quiz?._id && (
                           <Link
                             to={`/leaderboard/${r.quiz._id}`}
-                            className="btn-secondary"
-                            style={{ padding: "6px 12px", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                            className="btn-secondary-sm"
+                            title="View Leaderboard"
                           >
-                            <Trophy size={12} /> Rank
+                            <Trophy size={12} />
                           </Link>
                         )}
                       </div>

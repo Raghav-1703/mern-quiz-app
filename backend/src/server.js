@@ -1,3 +1,5 @@
+import dns from 'dns';
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -66,8 +68,8 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, "0.0.0.0", () =>
-  console.log(`Quiz Application API running on port ${PORT} (0.0.0.0)`)
+app.listen(PORT, () =>
+  console.log(`Quiz Application API running on port ${PORT}`)
 );
 
 export default app;

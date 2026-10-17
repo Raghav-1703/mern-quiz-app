@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createQuiz,
+  updateQuiz,
   getQuizzes,
   getQuizById,
   joinByCode,
@@ -26,6 +27,7 @@ router.post("/:id/submit", requireAuth, submitQuiz);
 
 // Admin-only management
 router.post("/", requireAuth, requireAdmin, createQuiz);
+router.put("/:id", requireAuth, requireAdmin, updateQuiz);
 router.delete("/:id", requireAuth, requireAdmin, deleteQuiz);
 
 export default router;

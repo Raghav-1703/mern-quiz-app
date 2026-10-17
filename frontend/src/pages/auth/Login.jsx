@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
-import { Mail, Lock, Eye, EyeOff, Sparkles, CheckCircle2, Zap, Shield, Trophy, ArrowRight, UserCheck } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Sparkles, CheckCircle2, Zap, Shield, Trophy } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -46,96 +46,53 @@ export default function Login() {
     }
   };
 
-  const fillCredentials = (demoEmail, demoPassword) => {
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-    setError("");
-  };
-
   return (
     <div className="container">
       <div className="auth-split-wrapper">
-        {/* Left Side: Educational Illustration & Value Props */}
+        {/* Left Side: Educational Motivation & Real Principles */}
         <div className="auth-hero-showcase">
-          <div className="auth-hero-badge">
+          <div className="hero-pill-badge" style={{ width: "fit-content", marginBottom: "16px" }}>
             <Sparkles size={14} />
             <span>Smarter Learning Starts Here</span>
           </div>
 
           <h1 className="auth-hero-title">
-            Master Any Subject Through <span className="gradient-text">Interactive Quizzes</span>
+            Master Any Subject Through Focused Knowledge Tests
           </h1>
 
           <p className="auth-hero-desc">
-            Challenge yourself with real-time countdown tests, join instructor classes with unique access codes, and analyze your performance with instant server-graded feedback.
+            Challenge your conceptual understanding with timed questions, join educator classes using unique access codes, and analyze performance with instant server-side grading.
           </p>
 
-          {/* Educational Visual Area with Floating Quiz Cards */}
-          <div className="auth-illustration-container">
-            <div className="auth-illustration-bg-blob" />
-
-            <div className="auth-interactive-preview">
-              <div className="floating-quiz-card" style={{ transform: "rotate(-1deg)" }}>
-                <div className="floating-card-left">
-                  <div className="floating-card-icon icon-purple">⚛️</div>
-                  <div className="floating-card-meta">
-                    <h4>MERN Stack Fundamentals</h4>
-                    <p>5 Questions · High Accuracy</p>
-                  </div>
+          <div className="card-modern" style={{ marginBottom: "28px" }}>
+            <h3 style={{ fontSize: "16px", marginBottom: "14px", display: "flex", alignItems: "center", gap: "8px" }}>
+              <CheckCircle2 size={18} color="var(--primary)" />
+              Built for Academic & Professional Integrity:
+            </h3>
+            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "10px", fontSize: "14px", color: "var(--text-muted)" }}>
+              <li style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ width: "24px", height: "24px", borderRadius: "4px", background: "var(--primary-soft)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Zap size={14} />
                 </div>
-                <span className="floating-card-badge badge-green">95% Score</span>
-              </div>
-
-              <div className="floating-quiz-card" style={{ transform: "rotate(1.5deg)", marginLeft: "24px" }}>
-                <div className="floating-card-left">
-                  <div className="floating-card-icon icon-amber">🔥</div>
-                  <div className="floating-card-meta">
-                    <h4>Daily Learning Streak</h4>
-                    <p>7 Days Active</p>
-                  </div>
+                <span><strong>Zero-Leakage Questions:</strong> Answer keys remain secured on MongoDB until submission.</span>
+              </li>
+              <li style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ width: "24px", height: "24px", borderRadius: "4px", background: "var(--primary-soft)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Shield size={14} />
                 </div>
-                <span className="floating-card-badge badge-purple">On Fire!</span>
-              </div>
-
-              <div className="floating-quiz-card" style={{ transform: "rotate(-0.5deg)" }}>
-                <div className="floating-card-left">
-                  <div className="floating-card-icon icon-green">⏳</div>
-                  <div className="floating-card-meta">
-                    <h4>Timed Real-Time Exam</h4>
-                    <p>10m Countdown · Anti-Cheat</p>
-                  </div>
+                <span><strong>Server-Enforced Timers:</strong> Countdown behavior synchronized with real server time.</span>
+              </li>
+              <li style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ width: "24px", height: "24px", borderRadius: "4px", background: "var(--primary-soft)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Trophy size={14} />
                 </div>
-                <span className="floating-card-badge badge-green">08:42 Left</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Three Feature Highlights */}
-          <div className="auth-features-row">
-            <div className="auth-feature-item">
-              <div className="feature-check-icon">
-                <Zap size={13} />
-              </div>
-              <span>Instant Grading</span>
-            </div>
-
-            <div className="auth-feature-item">
-              <div className="feature-check-icon">
-                <Shield size={13} />
-              </div>
-              <span>Zero-Knowledge Quiz</span>
-            </div>
-
-            <div className="auth-feature-item">
-              <div className="feature-check-icon">
-                <Trophy size={13} />
-              </div>
-              <span>Global Rankings</span>
-            </div>
+                <span><strong>Tiebreaker Rankings:</strong> Scores and completion speeds decide official placement.</span>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Right Side: Clean Rounded White Login Card */}
+        {/* Right Side: Clean White Login Card */}
         <div className="auth-card-clean">
           <div className="auth-card-header">
             <h2>Welcome Back</h2>
@@ -143,13 +100,13 @@ export default function Login() {
           </div>
 
           {isExpired && (
-            <div className="alert-box alert-warning">
+            <div className="alert-box alert-warning" style={{ marginBottom: "16px" }}>
               <span>Your session has expired. Please sign in again.</span>
             </div>
           )}
 
           {error && (
-            <div className="alert-box alert-error">
+            <div className="alert-box alert-error" style={{ marginBottom: "16px" }}>
               <span>{error}</span>
             </div>
           )}
@@ -158,7 +115,7 @@ export default function Login() {
             <div className="form-group">
               <label htmlFor="login-email">Email Address</label>
               <div className="input-with-icon">
-                <Mail className="input-icon-left" size={18} />
+                <Mail className="input-icon-left" size={17} />
                 <input
                   id="login-email"
                   type="email"
@@ -174,7 +131,7 @@ export default function Login() {
             <div className="form-group">
               <label htmlFor="login-password">Password</label>
               <div className="input-with-icon">
-                <Lock className="input-icon-left" size={18} />
+                <Lock className="input-icon-left" size={17} />
                 <input
                   id="login-password"
                   type={showPassword ? "text" : "password"}
@@ -189,51 +146,15 @@ export default function Login() {
                   onClick={() => setShowPassword(!showPassword)}
                   title={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
-            <button type="submit" className="btn-primary" style={{ width: "100%", padding: "14px" }} disabled={submitting}>
-              {submitting ? "Signing in…" : "Sign In →"}
+            <button type="submit" className="btn-primary" style={{ width: "100%", padding: "12px" }} disabled={submitting}>
+              {submitting ? "Signing in…" : "Sign In"}
             </button>
           </form>
-
-          {/* Quick Demo Logins Section */}
-          <div className="demo-logins-section">
-            <div className="demo-logins-title">
-              <UserCheck size={14} />
-              <span>Quick Demo Accounts</span>
-            </div>
-
-            <div className="demo-cards-grid">
-              <button
-                type="button"
-                className="demo-login-card"
-                onClick={() => fillCredentials("admin@quizapp.com", "Admin@12345")}
-              >
-                <div className="demo-card-head">
-                  <span className="demo-card-title">Educator / Admin</span>
-                  <span className="demo-card-pill pill-admin">👑 Admin</span>
-                </div>
-                <span className="demo-card-email">admin@quizapp.com</span>
-                <span className="demo-card-click">Click to Fill →</span>
-              </button>
-
-              <button
-                type="button"
-                className="demo-login-card"
-                onClick={() => fillCredentials("rahul@quizapp.com", "User@12345")}
-              >
-                <div className="demo-card-head">
-                  <span className="demo-card-title">Student Learner</span>
-                  <span className="demo-card-pill pill-student">🎓 Student</span>
-                </div>
-                <span className="demo-card-email">rahul@quizapp.com</span>
-                <span className="demo-card-click">Click to Fill →</span>
-              </button>
-            </div>
-          </div>
 
           <p className="auth-footer-prompt">
             Don't have an account yet? <Link to="/signup">Create one for free</Link>

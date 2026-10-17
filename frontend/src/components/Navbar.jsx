@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
-import { Sparkles, Compass, LayoutDashboard, Key, History, PlusCircle, ListTodo, LogOut, ShieldCheck, GraduationCap } from "lucide-react";
+import { Sparkles, Compass, LayoutDashboard, Key, History, PlusCircle, ListTodo, LogOut } from "lucide-react";
 
 export default function Navbar() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
@@ -19,7 +19,7 @@ export default function Navbar() {
       <div className="topbar-left">
         <Link to="/" className="brand">
           <div className="brand-icon-wrapper">
-            <Sparkles size={20} />
+            <Sparkles size={18} />
           </div>
           <span className="brand-title">Quizzical</span>
         </Link>
@@ -31,30 +31,30 @@ export default function Navbar() {
             {!isAdmin ? (
               <>
                 <Link to="/dashboard" className={isActive("/dashboard")}>
-                  <LayoutDashboard size={16} />
+                  <LayoutDashboard size={15} />
                   Dashboard
                 </Link>
                 <Link to="/join-quiz" className={isActive("/join-quiz")}>
-                  <Key size={16} />
+                  <Key size={15} />
                   Join Quiz
                 </Link>
                 <Link to="/profile" className={isActive("/profile")}>
-                  <History size={16} />
+                  <History size={15} />
                   My History
                 </Link>
               </>
             ) : (
               <>
                 <Link to="/admin/dashboard" className={isActive("/admin/dashboard")}>
-                  <LayoutDashboard size={16} />
-                  Admin Overview
+                  <LayoutDashboard size={15} />
+                  Overview
                 </Link>
                 <Link to="/admin/create-quiz" className={isActive("/admin/create-quiz")}>
-                  <PlusCircle size={16} />
+                  <PlusCircle size={15} />
                   Create Quiz
                 </Link>
                 <Link to="/admin/quizzes" className={isActive("/admin/quizzes")}>
-                  <ListTodo size={16} />
+                  <ListTodo size={15} />
                   Manage Quizzes
                 </Link>
               </>
@@ -63,7 +63,7 @@ export default function Navbar() {
         ) : (
           <>
             <Link to="/" className={isActive("/")}>
-              <Compass size={16} />
+              <Compass size={15} />
               Explore
             </Link>
             <Link to="/login" className={isActive("/login")}>
@@ -81,11 +81,11 @@ export default function Navbar() {
           <div className="user-badge">
             <div
               style={{
-                width: 28,
-                height: 28,
-                borderRadius: "50%",
-                background: isAdmin ? "linear-gradient(135deg, #f59e0b, #d97706)" : "linear-gradient(135deg, #7c3aed, #6366f1)",
-                color: "#fff",
+                width: 26,
+                height: 26,
+                borderRadius: "var(--radius-sm)",
+                background: isAdmin ? "var(--accent)" : "var(--primary-soft)",
+                color: isAdmin ? "var(--text)" : "var(--primary)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -97,11 +97,11 @@ export default function Navbar() {
             </div>
             <span className="user-name">{user?.name}</span>
             <span className={`role-pill ${isAdmin ? "role-admin" : "role-user"}`}>
-              {isAdmin ? "👑 Admin" : "🎓 Student"}
+              {isAdmin ? "Admin" : "Student"}
             </span>
           </div>
           <button className="btn-logout" onClick={handleLogout} title="Log Out">
-            <LogOut size={14} />
+            <LogOut size={13} />
             Logout
           </button>
         </div>
